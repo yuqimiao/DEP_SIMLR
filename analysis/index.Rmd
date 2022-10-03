@@ -21,6 +21,7 @@ Index:
 ## TCGA analysis
 
 [TCGA_data_basics](TCGA_data_basics.html)
+
 [TCGA_survival_analysis](TCGA_survival_analysis.html)
 
 ```{r}
@@ -29,5 +30,7 @@ Index:
 #                 "analysis/TCGA_survival_analysis.rmd",
 #                 "analysis/simulation_notebook.rmd"
 #                 ),"update")
+
+# wflow_publish(c("analysis/index.rmd"),"update")
 ```
 
