@@ -9,3 +9,25 @@ editor_options:
 ---
 
 Welcome to my research website.
+
+Index:
+
+# Simulation
+
+[Simulation notebook](simulation_notebook.html)
+
+# Real data
+
+## TCGA analysis
+
+[TCGA_data_basics](TCGA_data_basics.html)
+[TCGA_survival_analysis](TCGA_survival_analysis.html)
+
+```{r}
+# wflow_publish(c("analysis/index.rmd", 
+#                 "analysis/TCGA_data_basics.rmd",
+#                 "analysis/TCGA_survival_analysis.rmd",
+#                 "analysis/simulation_notebook.rmd"
+#                 ),"update")
+```
+

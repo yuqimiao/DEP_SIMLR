@@ -1,0 +1,50 @@
+---
+title: "simulation_notebook"
+author: "yuqimiao"
+date: "2022-09-30"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r}
+library(tidyverse)
+# need to connect to cluster
+```
+
+## 220930 4 clusters
+
+**Basic setting: **
+
+The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and (3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters, although 2 sets of three different clusters. Only when you use both datasets 1 and 2, you can detect 4 clusters. This way, the overlapping information of the 2 datasets are, clusters (1+2) from clusters (3+4). The unique information of dataset 1 is to separate cluster 1 and 2. The unique information of dataset 2 is to separate cluster 3 and 4.
+
+**Parameters: **
+
+n_feat1 = 1000
+n_feat2 = 100000
+mu1 = c(0, 0, 1, -1)
+mu2 = c(1,-1,0,0)
+
+```{r}
+# data read in
+dir = "/Volumes/sw2206/yuqi/simu_220930"
+files = list.files(dir)
+tib_all = NULL
+for(i in 1:length(files)){
+  tib = readRDS(paste(dir,"/", files[i], sep = ""))
+  tib_all = rbind(tib_all, tib)
+}
+
+tib_all %>% unnest(res_tib) %>% 
+  group_by(noise_sd, kernel, method) %>% 
+  summarize(mean_nmi = mean(nmi),
+         sd_nmi = sd(nmi)) %>% 
+  mutate(method = paste(method, kernel, sep = "-")) %>% 
+  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
+  geom_line()+
+  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
+  geom_point()
+```
+

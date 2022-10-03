@@ -1,0 +1,63 @@
+---
+title: "TCGA_data_basics"
+author: "yuqimiao"
+date: "2022-09-11"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+data dimension collection
+
+see: 
+Dimension check: 
+
+```{r}
+"/Users/miaoyuqi/研究/Shuang project/multiomics_integation/code/weekly_analysis_script/Week2022-03-10/TCGA_data_check.R"
+```
+
+Common sample from fitting-distance_list:
+```{r}
+"./code/weekly_analysis_script/Week2022-09-08/Survival_TCGA.R"
+```
+
+
+
+# BRCA
+
+* Gene expression: 
+  * cancer: 17002  1093
+  * normal: 17002   109
+* Methylation:
+  * cancer: 311121    604
+  * normal: 311121     90
+* Mutation: 14164   604
+
+* Common sample: 603
+
+
+# KIRP
+
+* Gene expression: 
+  * cancer: 16729   290
+  * normal: 16729    30
+* Methylation:
+  * cancer: 302734    137
+  * normal: 302734     45
+* Mutation: 8475  137
+
+* Common sample: 137
+
+# lihc
+
+* Gene expression: 
+  * cancer: 16085   367
+  * normal: 16085    49
+* Methylation:
+  * cancer: 302747    161
+  * normal: 302747     50
+* Mutation: 11448   162
+
+* Common sample: 161

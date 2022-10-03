@@ -1,0 +1,506 @@
+---
+title: "TCGA_survival_analysis"
+author: "yuqimiao"
+date: "2022-09-22"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(SNFtool)
+
+library(flexsurv)
+library(survival)
+library(MASS)
+library(survminer)
+```
+
+# Introduction and Raw data description
+
+In this script, Survival analysis is applied on the kirp and liver cancer data.
+
+**KIRP**
+
+* Gene expression: 
+  * cancer: 16729   290
+  * normal: 16729    30
+* Methylation:
+  * cancer: 302734    137
+  * normal: 302734     45
+
+* Common sample: 137
+
+**lihc**
+
+* Gene expression: 
+  * cancer: 16085   367
+  * normal: 16085    49
+* Methylation:
+  * cancer: 302747    161
+  * normal: 302747     50
+
+* Common sample: 161
+
+# Implementation detail
+
+The analysis aims to compare the effect from integration, similarity diffusion and partition-level clustering separately. For each data type in each cancer, Euclidean distance and weighted distance are calculated. Weighted distance is based on definition from Ruan et.al($d_w(i,j)^2 =  \sum_{p=1}^P(x_{ip}-x_{jp})^2w_p, w_p = \frac{-\log_{10}(PV_p)}{\sum_p-\log_{10}(PV_p)}$. The p value is calculated from the univariate logistic regression with the indicator of the cancer as outcome and each single genetic variant as predictor. 
+
+From the distance, we further calculated the kernel and diffused kernel ($K_d = \alpha KP+(1-\alpha)K$, where P is the knn matrix, $k=\sqrt n$ ) as the similarity matrix reflecting similarity relationship between subjects. and we perform spectral clustering on these similarity measure for each data type in each cancer.
+
+Three methods are implemented for integration: SNF, CIMLR and part-CIMLR. Same kernel lists are fed into the integration methods.  We average the kernels in each list and using eigen gap criteria to  estimate the total number of clusters in the integrated data. in this way, all 3 integration methods are regarded as having the same number of clusters for the final integraed similarity matrix. 
+
+# Result 
+
+```{r}
+surv_pv = readRDS("./code/Code_collection/TCGA_survival_analysis/surv_pv.rds")
+kirp_surv_pv = surv_pv %>% filter(cancer == "kirp")
+lihc_surv_pv = surv_pv %>% filter(cancer == "lihc")
+```
+
+Result from lihc is not significant among all analysis,  in the "number of cluster tunning" section, we further change the number of clusters of lihc to see if any significant result can be observed
+
+```{r}
+tib1 = lihc_surv_pv
+knitr::kable(tib1, digits = 32)
+```
+
+## Effect of integration
+
+```{r}
+tib2 = kirp_surv_pv %>% arrange(dist_type, kernel_type)
+knitr::kable(tib2, digits = 32)
+```
+
+## Effect of diffusion
+
+```{r}
+tib3 = kirp_surv_pv %>% arrange(type, dist_type)
+knitr::kable(tib3, digits = 32)
+```
+
+## Effect of partition
+
+```{r}
+tib4 = kirp_surv_pv %>%
+  filter(method != "single") %>% 
+  arrange(type, dist_type)
+knitr::kable(tib4, digits = 32)
+```
+
+
+## Cluster distribution
+
+```{r}
+cluster_dist = readRDS("code/Code_collection/TCGA_survival_analysis/cluster_distribution.rds")
+
+knitr::kable(cluster_dist)
+```
+
+
+
+# KIRP Exploration
+2022-09-27
+
+```{r, include = F}
+library(tidyverse)
+library(SNFtool)
+
+library(flexsurv)
+library(survival)
+library(MASS)
+library(survminer)
+library(igraph)
+library(patchwork)
+source("code/functions/Partition_CIMLR_2.0.R")
+# source code in /Users/miaoyuqi/研究/Shuang project/multiomics_integation/code/Code_collection/TCGA_survival_analysis/KIRP_analysis.R
+```
+
+Read in
+```{r}
+res_tib_integ = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/res_tib_integ.rds")
+res_tib_single = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/res_tib_single.rds")
+obj_tib = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/cancer_object/obj_tib.rds")
+```
+
+
+## Survival plot
+
+Since the weighted distance may not be accurate enough, all following result using original distance
+
+Integrated
+```{r}
+kirp_surv_tib = res_tib_integ %>%
+  filter(dist_type == "dist" & cancer == "kirp") %>%
+  dplyr::select(cancer, method, kernel_type,surv_tib) %>%
+  unnest(surv_tib)
+
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                         data = kirp_surv_tib),
+                 data = kirp_surv_tib,
+                 facet.by = c("kernel_type", "method"))+
+  ggtitle("Survival curve for kirp using original distance")
+
+# ggsave("code/Code_collection/TCGA_survival_analysis/kirp_dist_surv.png",width = 10, height = 6)
+```
+
+This plot shows the survival curv from the integrated similarity facet by kernel type and integrating method
+
+ge
+```{r}
+kirp_surv_tib_ge = res_tib_single %>%
+  filter(cancer == "kirp" & dist_type == "dist" & type == "ge") %>%
+  dplyr::select(cancer, kernel_type,surv_tib) %>%
+  unnest(surv_tib)
+surv_ge = ggsurvplot_facet(survfit(Surv(days_to_death, censoring) ~ cluster, data = kirp_surv_tib_ge),
+                 kirp_surv_tib_ge,
+                 facet.by = c("kernel_type"))+
+  ggtitle("Survival curve for kirp using original ge distance")
+
+surv_ge
+```
+
+This plot shows the survival curv from the gene expression similarity, facet by kernel type.
+
+me
+```{r}
+kirp_surv_tib_me = res_tib_single %>%
+  filter(cancer == "kirp" & dist_type == "dist" & type == "me") %>%
+  dplyr::select(cancer, kernel_type,surv_tib) %>%
+  unnest(surv_tib)
+
+surv_me = ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                         data = kirp_surv_tib_me),
+                 data = kirp_surv_tib_me,
+                 facet.by = c("kernel_type"))+
+  ggtitle("Survival curve for kirp using original me distance")
+surv_me
+```
+
+This plot shows the survival curv from the methylation similarity, facet by kernel type.
+
+## Diffusion effect explore - KIRP gene expression result 
+
+```{r}
+# pull out the res_list for kirp ge
+res_kirp_ge = (obj_tib %>% filter(cancer == "kirp" &type == "ge" & dist_type == "dist" ) %>% pull(object))[[1]]
+names(res_kirp_ge)
+
+# est_n_clust didn't change after diffusion
+res_kirp_ge$est_nclust_kernel
+res_kirp_ge$est_nclust_diff_kernel
+
+# table for the cluster distribution
+table(res_kirp_ge$cluster_kernel)
+table(res_kirp_ge$cluster_diff_kernel)
+
+# cluster nmi
+compare(res_kirp_ge$cluster_kernel, res_kirp_ge$cluster_diff_kernel,"nmi")
+```
+
+
+### Neighborhood change
+
+function for neighborhood check
+```{r}
+# input: 2 similarity mat, kernel, diff kernel and the subject id which we want to look at
+# output: sorted kernel/diff_kernel vec for the subject, and the plot showing the neighbor difference
+neighbor_difference = function(kernel,diff_kernel,subj_id){
+  n = nrow(kernel)
+  k = floor(sqrt(n))
+  par(mfrow = c(2,1))
+  plot(kernel[subj_id,], ylim = c(0.7,1))
+  plot(diff_kernel[subj_id,], ylim = c(0.7,1))
+
+  sort_kernel_vec = sort(kernel[as.character(subj_id),], index.return = T, decreasing = T)
+  sort_diff_kernel_vec = sort(diff_kernel[as.character(subj_id),], index.return = T, decreasing = T)
+
+
+
+  par(mfrow = c(1,2))
+  plot(x = 1:k, y = sort_kernel_vec$x[1:k],xaxt = "n", ylab = "kernel", xlab = "index", ylim = c(0.7,1), main = paste("subject", subj_id, "neighbor change"))
+  axis(1, at = 1:k,labels = as.character(colnames(kernel)[sort_kernel_vec$ix[1:k]]),las = 2)
+  abline(h=0.85, col = "lightgray")
+  plot(x = 1:k, y = sort_diff_kernel_vec$x[1:k],xaxt = "n", ylab = "diff_kernel", xlab = "index", ylim = c(0.7,1))
+  axis(1, at = 1:k,labels = as.character(colnames(kernel)[sort_diff_kernel_vec$ix[1:k]]),las = 2)
+  abline(h=0.85, col = "lightgray")
+
+  return(list(sort_kernel_vec = sort_kernel_vec,
+              sort_diff_kernel_vec = sort_diff_kernel_vec))
+}
+```
+
+See plot for 2 subjects as example
+```{r}
+tmp = neighbor_difference(kernel = res_kirp_ge$kernel,
+                    diff_kernel = res_kirp_ge$diff_kernel,
+                    subj_id = "7287")
+
+```
+
+From this neighborhood comparison, we can see that diffusion makes the neighbor similarity measures less variable, and also change the diagonal similarity measure as the weighted combination of the neighbor similarity;
+
+The neighbor ranks will also change
+
+
+### MDS plot v.s. survival plot
+
+calc mds plot
+```{r,fig.width=20,fig.height=10}
+distance = res_kirp_ge$distance
+kernel = res_kirp_ge$kernel
+diff_kernel = res_kirp_ge$diff_kernel
+cluster_kernel = res_kirp_ge$cluster_kernel
+cluster_diff_kernel = res_kirp_ge$cluster_diff_kernel
+
+# subset distance measure
+colnames(distance) = rownames(distance) = str_sub(colnames(distance), -4,-1)
+distance = distance[names(cluster_kernel), names(cluster_kernel)]
+
+distance = dist_kernels(diff_kernel)
+
+mds_kd = as_tibble(cmdscale(distance, 2))%>%
+  mutate(kernel = cluster_kernel,
+         diff_kernel = cluster_diff_kernel) %>%
+  pivot_longer(cols = c(kernel, diff_kernel),
+               names_to = "kernel_type",
+               values_to = "cluster") %>%
+  ggplot(aes(x = V1, y = V2, color = factor(cluster))) +
+  geom_point()+
+  facet_grid(.~kernel_type)+
+  labs(title = "MDS plot using diffused kernel distance",
+       subtitle = "labeled by the cluster from kernel and diff_kernel separately",
+       color = "cluster label")
+
+mds_kd|surv_ge
+```
+
+plot by kernel distance to show clearer low-dimensional structure
+
+The color of the 2 plots are corresponding; The diffusion kernel clearly separates cluster 3,4, which are the 2 extreme clusters in the population. This indicatesthe fact that diffusion captures more global, more dense and clear cluster structure in the similarity network
+
+
+```{r}
+intersect(which(res_kirp_ge$cluster_diff_kernel == 3), c(which(res_kirp_ge$cluster_kernel == 1),which(res_kirp_ge$cluster_kernel == 2)))
+length(which(res_kirp_ge$cluster_diff_kernel == 3))
+```
+
+Diffusion kernel separate out the most extreme cases as 3/4
+
+
+### Eigen value change of GL
+
+```{r}
+eig_kernel_GL = eigen(normalized_GL(kernel))
+eig_diff_kernel_GL = eigen(normalized_GL(diff_kernel))
+
+eig_kernel_GL$values[(nrow(kernel)-6):nrow(kernel)]
+eig_diff_kernel_GL$values[(nrow(kernel)-6):nrow(kernel)]
+```
+
+smaller eigen value is increasing, focus on larger structure
+
+# Subject 6486 observation
+2022-09-28
+
+## common neighborhood
+
+```{r}
+id_cur = "6846"
+# obj_tib read in the KIRP exploration
+# extract kernel and diff kernel for ge
+# pull out the res_list for kirp ge
+res_kirp_ge = (obj_tib %>% filter(cancer == "kirp" &type == "ge" & dist_type == "dist" ) %>% pull(object))[[1]]
+res_kirp_me = (obj_tib %>% filter(cancer == "kirp" &type == "me" & dist_type == "dist" ) %>% pull(object))[[1]]
+
+
+kernel_ge = res_kirp_ge$kernel
+diff_kernel_ge = res_kirp_ge$diff_kernel
+
+kernel_me = res_kirp_me$kernel
+diff_kernel_me = res_kirp_me$diff_kernel
+```
+
+Neighborhood membership in expression
+```{r}
+nb_ge = neighbor_difference(kernel_ge, diff_kernel_ge, subj_id = id_cur)
+```
+
+Neighborhood membership in methylation
+```{r}
+nb_me = neighbor_difference(kernel_me, diff_kernel_me, subj_id = id_cur)
+```
+
+```{r}
+# ge
+nb_ge$sort_kernel_vec$x[1:11]
+nb_ge$sort_diff_kernel_vec$x[1:11]
+
+# me
+nb_me$sort_kernel_vec$x[1:11]
+nb_me$sort_diff_kernel_vec$x[1:11]
+```
+
+Common neighbors of 6846 in both ge and me
+```{r}
+# original neighb of ge/me matrix intersection
+intersect(names(nb_ge$sort_kernel_vec$x[1:11]),names(nb_me$sort_kernel_vec$x[1:11]))
+```
+
+Only subject 8310 and 7288 are both included in the neighbors in gene expression and methylation data
+
+
+Histogram of days to death
+```{r}
+hist(kirp_surv_tib_ge %>%  filter(kernel_type=="kernel") %>% pull(days_to_death), decreasing = T, xlab = "days to death")[1:5]
+```
+
+From above plot, we can see that subject 6846 has an extremely long follow up period, this could indicate 6846 to be an outlier of the population;
+
+
+### MDS plot v.s. survival plot
+
+
+```{r}
+# input: 
+# output: 
+mds_plot = function(distance,
+                    kernel,
+                    diff_kernel,
+                    cluster_kernel,
+                    cluster_diff_kernel,
+                    target_label){
+  
+  colnames(distance) = rownames(distance) = str_sub(colnames(distance), -4,-1)
+  distance = distance[names(cluster_kernel), names(cluster_kernel)]
+  
+  distance = dist_kernels(diff_kernel)
+  
+  
+  
+  
+  mds_kd = as_tibble(cmdscale(distance, 2))%>%
+    mutate(kernel = cluster_kernel,
+           diff_kernel = cluster_diff_kernel) %>%
+    pivot_longer(cols = c(kernel, diff_kernel),
+                 names_to = "kernel_type",
+                 values_to = "cluster") %>%
+    arrange(kernel_type) %>% 
+    ggplot(aes(x = V1, y = V2, color = factor(cluster), label = rep(target_label,2))) +
+    geom_point()+
+    geom_text(size = 2)+
+    facet_grid(.~kernel_type)+
+    labs(title = "MDS plot using diffused kernel distance",
+         subtitle = "labeled by the cluster from kernel and diff_kernel separately",
+         color = "cluster label")
+  
+  return(mds_kd)
+}
+```
+
+mds+surv, ge/me
+```{r}
+target_label = rownames(kernel)
+for(i in 1:length(target_label)){
+  target_label[i] = ifelse(target_label[i] %in% names(nb_me$sort_kernel_vec$x[1:11]),
+                           target_label[i], 0)
+}
+
+mds_me = mds_plot(distance = res_kirp_me$distance,
+       kernel = res_kirp_me$kernel,
+       diff_kernel = res_kirp_me$diff_kernel,
+       cluster_kernel = res_kirp_me$cluster_kernel,
+       cluster_diff_kernel = res_kirp_me$cluster_diff_kernel,
+       target_label = target_label)
+
+mds_ge = mds_plot(distance = res_kirp_ge$distance,
+       kernel = res_kirp_ge$kernel,
+       diff_kernel = res_kirp_ge$diff_kernel,
+       cluster_kernel = res_kirp_ge$cluster_kernel,
+       cluster_diff_kernel = res_kirp_ge$cluster_diff_kernel,
+       target_label = target_label)
+```
+
+```{r}
+(mds_me|mds_ge)/
+(surv_me|surv_ge)
+```
+
+mds+surv, integrated
+```{r}
+kirp_surv_tib_part = kirp_surv_tib %>%
+  filter(method == "part_cimlr")
+kirp_res_tib_integ_part = res_tib_integ %>% 
+  filter(cancer =="kirp" & dist_type == "dist" & method == "part_cimlr")
+
+mds_part = mds_plot(distance = res_kirp_ge$distance,
+       kernel = kirp_res_tib_integ_part$similarity[[1]],
+       diff_kernel = kirp_res_tib_integ_part$similarity[[2]],
+       cluster_kernel = kirp_res_tib_integ_part$cluster[[1]],
+       cluster_diff_kernel =kirp_res_tib_integ_part$cluster[[2]],
+       target_label = target_label)
+
+surv_part = ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                         data = kirp_surv_tib_part),
+                 data = kirp_surv_tib_part,
+                 facet.by = c("kernel_type", "method"))+
+  ggtitle("Survival curve for kirp using original distance")
+
+mds_part/surv_part
+```
+
+
+# Number of cluster tunning
+Read in, generated from analysis.r
+```{r}
+res_tib_integ_nc = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/res_tib_integ_nc.rds")
+surv_pv_integ_nc = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/surv_pv_integ_nc.rds")
+```
+
+<0.05 combination
+```{r}
+surv_pv_integ_nc %>%
+  filter(cancer == "lihc") %>%
+  unnest(surv_pv)%>%
+  filter(surv_pv<0.05) %>% 
+  arrange(surv_pv)
+```
+
+lihc survival analysis, nc = 6
+```{r}
+lihc_surv_tib_nc6 = res_tib_integ_nc %>%
+  filter(cancer == "lihc" & n_cluster == 6 & dist_type == "dist") %>%
+  dplyr::select(cancer, kernel_type,method, surv_tib) %>%
+  unnest(surv_tib) 
+surv_6 = ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                  data = lihc_surv_tib_nc6),
+                          data = lihc_surv_tib_nc6,
+                          facet.by = c("kernel_type", "method"))+
+  ggtitle("Survival curve for lihc using integrated original distance, nc = 6")
+
+surv_6
+```
+
+Extreme case for surv_6
+```{r}
+part_cim_kernel = lihc_surv_tib_nc6 %>%
+  filter(method == "part_cimlr" & kernel_type == "kernel")
+table(part_cim_kernel$cluster)
+```
+
+Potentially, when extracting partition information from the single data, only the major variation is captured instead of the small, blur variation.
+
+# work log
+
+tidy and add res_tib, surv_tib, cluster_tib into the worklog with header details 
+
+# Major problem in the analysis: 
+
+1. num cluster for integrated data is generated from the averaged similarity matrix, which is rural
+   1. In SNF, no need to estimate the num cluster in integ data when fusing
+   2. but both cimlr and part-cimlr does
+   3. part-cimlr even requires single data num cluster based on the original kernel of each data type, which is easy to go wrong 
+2. Single data analysis should use all the intersection samples instead of all samples
+3. survival data potential problem:
+   1. days to last contact < days to death? https://www.biostars.org/p/253342/
