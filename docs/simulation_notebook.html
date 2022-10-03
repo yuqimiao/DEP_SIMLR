@@ -499,16 +499,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong53fd9ff"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 53fd9ff </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstronge0d8c2c"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> e0d8c2c </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong53fd9ff" class="panel-collapse collapse">
+<div id="strongRepositoryversionstronge0d8c2c" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 53fd9ff. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version e0d8c2c. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -566,6 +566,40 @@ Message
 Rmd
 </td>
 <td>
+e0d8c2c
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-03
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+18d5b0e
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 53fd9ff
 </td>
 <td>
@@ -603,7 +637,12 @@ x dplyr::lag()    masks stats::lag()</code></pre>
 <p><strong>Basic setting: </strong></p>
 <p>The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and (3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters, although 2 sets of three different clusters. Only when you use both datasets 1 and 2, you can detect 4 clusters. This way, the overlapping information of the 2 datasets are, clusters (1+2) from clusters (3+4). The unique information of dataset 1 is to separate cluster 1 and 2. The unique information of dataset 2 is to separate cluster 3 and 4.</p>
 <p><strong>Parameters: </strong></p>
-<p>n_feat1 = 1000 n_feat2 = 100000 mu1 = c(0, 0, 1, -1) mu2 = c(1,-1,0,0)</p>
+<ul>
+<li>n_feat1 = 1000</li>
+<li>n_feat2 = 100000</li>
+<li>mu1 = c(0, 0, 1, -1)</li>
+<li>mu2 = c(1,-1,0,0)</li>
+</ul>
 <pre class="r"><code># data read in
 dir = &quot;/Volumes/sw2206/yuqi/simu_220930&quot;
 files = list.files(dir)
@@ -617,13 +656,49 @@ tib_all %&gt;% unnest(res_tib) %&gt;%
   group_by(noise_sd, kernel, method) %&gt;% 
   summarize(mean_nmi = mean(nmi),
          sd_nmi = sd(nmi)) %&gt;% 
-  mutate(method = paste(method, kernel, sep = &quot;-&quot;)) %&gt;% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line()+
+  geom_line(aes(linetype=kernel, color = method))+
   # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
   geom_point()</code></pre>
 <pre><code>`summarise()` has grouped output by &#39;noise_sd&#39;, &#39;kernel&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="figure/simulation_notebook.rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+18d5b0e
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-03
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
