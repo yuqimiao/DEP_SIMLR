@@ -32,5 +32,6 @@ Index:
 #                 ),"update")
 
 # wflow_publish(c("analysis/index.rmd"),"update")
+# wflow_git_push()
 ```
 
