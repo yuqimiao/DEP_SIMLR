@@ -47,3 +47,7 @@ tib_all %>% unnest(res_tib) %>%
   geom_point()
 ```
 
+2 Potential problems:
+
+1. Parition-cimlr using the true number of clusters for both single data and integrated data, while SNF and cimlr only takes true number of clusters for the integrated data
+
