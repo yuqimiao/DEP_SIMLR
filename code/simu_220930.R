@@ -3,7 +3,7 @@ setwd("/ifs/scratch/msph/biostat/sw2206/yuqi")
 task_ID = as.integer(Sys.getenv("SGE_TASK_ID"))
 N= 1:8000
 task_id = N[task_ID]
-dir = "simu_220930"
+dir = "simu_220930_2"
 library(tidyverse)
 library(igraph)
 # simulation for 4 clusters, data 1 separates 1/2A/2B, data 2 separates 1A/1B/2 ----
@@ -43,7 +43,7 @@ get_data_4clust = function(n_sub = 200,
 # heatmap_gg(data, "sim1") # heatmap_gg in visualization_functions.R
 # simulation par collection
 
-noise_sd_all = seq(1,3,0.5)
+noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
 
 ## simulate
 n_feat1 = 1000
@@ -86,7 +86,12 @@ Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
 
-kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr)
+# part_CIMLR with updated c
+res_part_cimlr_up = part_cimlr(kernel_list, k = k, c = 4, update_c = T)
+Y = res_part_cimlr_up$Y
+res_part_cimlr_up = list(S = Y %*% t(Y),
+                      cluster = res_part_cimlr_up$cluster)
+kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr, res_part_cimlr_up = res_part_cimlr_up)
 
 
 # diff_kernel ----
@@ -104,11 +109,17 @@ res_part_cimlr = part_cimlr(diff_kernel_list, k = k, c_single = rep(3,2), c = 4)
 Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
-diff_kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr)
 
+# part_CIMLR with updated c
+res_part_cimlr_up = part_cimlr(diff_kernel_list, k = k, c = 4, update_c = T)
+Y = res_part_cimlr_up$Y
+res_part_cimlr_up = list(S = Y %*% t(Y),
+                      cluster = res_part_cimlr_up$cluster)
+diff_kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr, res_part_cimlr_up = res_part_cimlr_up)
 
+# res_tib
 res_tib = expand_grid(kernel = c("kernel", "diff_kernel"),
-                      method = c("snf", "cimlr", "part_cimlr")) %>%
+                      method = c("snf", "cimlr", "part_cimlr","part_cimlr_up")) %>%
   mutate(res_list = c(kernel_res_list, diff_kernel_res_list)) %>%
   mutate(nmi = map_dbl(res_list, function(ls) compare(ls$cluster, rep(1:4, each = 50), "nmi")))
 

@@ -39,7 +39,8 @@ kernel_list_generation = function(data_list = NA, distance_list = NA,
 # * k: numbers of neighbors in KNN, indicating the structure of single data
 # * c_single: a s vector containing the number of clusters for each data type
 # * c: number of clusters estimated for integrated similarity matrix
-# * update_c: whether we update c based on the new weighted sum of the partition information, currently not working
+# * update_c: whether we update c based on the new weighted sum of the partition information
+# * num_eig: candidate number of eigen vec to use in single data partition information F_s
 # * rho:: importance of integrated data to single partition learning
 # Output:
 # * cluster: cluster result for each subject
@@ -53,9 +54,10 @@ kernel_list_generation = function(data_list = NA, distance_list = NA,
 # generate kernel list before optimization
 part_cimlr = function(kernel_list,
                       k = 10,
-                      c_single, # a s vector containing the number of clusters for each data type
+                      c_single = NA, # a s vector containing the number of clusters for each data type
                       c,
-                      update_c = F, # currently can only be F since the estimate number of cluster function need to be further specify
+                      update_c = F,
+                      num_eig = 2:10,
                       rho = 1
                       ){
   # kernel distance calculation ----
@@ -70,6 +72,16 @@ part_cimlr = function(kernel_list,
     x = as.matrix(x)
     max(x)-x
   })
+
+  # estimate eigvec to use for each data type
+  if(update_c){
+    c_single = map_dbl(Z0, function(z){
+      estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+    })
+    print(c_single)
+  }
+
+
   F0 = lapply(1:S, function(i){
     L = diag(rowSums(Z0[[i]]))-Z0[[i]]
     F_eig1 = eig1(L, c = c_single[i], isMax = 0)$eigvec
@@ -114,6 +126,13 @@ part_cimlr = function(kernel_list,
       # if(network_diffusion){Z_cur[[s]] = network.diffusion(Z_cur[[s]], k)}
       # Z_cur[[s]] = dn(Z_cur[[s]],"ave")
     }
+    # Update number of eigen-vector to use in single
+    if(update_c){
+      c_single = map_dbl(Z_cur, function(z){
+        estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+      })
+      print(c_single)
+    }
     # Update F ----
     F_pre = F_cur
     for(s in 1:S){
@@ -122,7 +141,7 @@ part_cimlr = function(kernel_list,
       Lz = normalized_GL(Y_cur %*% t(Y_cur))
       lambda = initial_list[[s]]$lambda
       r = initial_list[[s]]$lambda
-      F_eig1 = eig1(lambda*L+rho*lambda*w_cur[[s]]*Lz, isMax = 0, c =c_single[[s]] )$eigvec
+      F_eig1 = eig1(lambda*L+rho*lambda*w_cur[[s]]*Lz, isMax = 0, c = c_single[[s]] )$eigvec
       F_cur[[s]] = F_eig1
     }
     # Update Y ----
@@ -132,7 +151,7 @@ part_cimlr = function(kernel_list,
       L = diag(1,n)-F_cur[[s]]%*%t(F_cur[[s]])*2
       weight_L = weight_L+w_cur[[s]]*L
     }
-    if(update_c) c = estimateNumberOfClustersGivenGraph((diag(1,n)-weight_L), NUMC = numc)[[1]]
+    # if(update_c) c = estimateNumberOfClustersGivenGraph((diag(1,n)-weight_L), NUMC = numc)[[1]]
     Y_cur = eig1(weight_L, isMax = 0, c = c )$eigvec
 
     # Update w empirically

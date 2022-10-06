@@ -95,7 +95,7 @@ n_feat1 = 1000
 n_feat2 = 100000
 mu1 = c(0, 0, 1, -1)
 mu2 = c(1,-1,0,0)
-noise_sd = 3
+noise_sd = 1
 
 data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
 data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
@@ -110,6 +110,7 @@ n = nrow(data_list[[1]])
 k = floor(sqrt(n))
 source("code/functions/Partition_CIMLR_2.0.R")
 source("code/functions/CIMLR_kernel_input.R")
+source("code/functions/visualization_functions.R")
 
 distance_list = lapply(data_list, function(x) dist2(x,x))
 kernel_list = lapply(distance_list, function(x) kernel_calculation(distance = x, k = k, sigma = sigma ))
@@ -119,12 +120,100 @@ S0 = S
 diag(S0) = mean(S0)
 heatmap_gg(S0,"kernel")
 
-source("code/functions/visualization_functions.R")
+S1 = kernel_list[[1]]
+S2 = kernel_list[[2]]
+diag(S1) = mean(S1)
+diag(S2) = mean(S2)
+heatmap_gg(S1+S2,"kernel sum")
+
+heatmap_gg(eigen(S1)$vectors[,1:5],"S1 first 5")
+heatmap_gg(eigen(S2)$vectors[,1:5],"S2 first 5")
+heatmap_gg(eigen(S1+S2)$vectors[,1:5],"S1+S2 first 5")
+
+
 L = normalized_GL(S)
 estimateNumberOfClustersGivenGraph(S,2:5)
 plot((n-10):(n-1), eigen(L)$values[(n-10):(n-1)])
 heatmap_gg(eigen(L)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
 compare(kmeans(eigen(S)$vectors[,2],3)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
 
+# update diffusion_kernel makes worse performance?
+kernel_list = diff_kernel_list
+c=4
+update_c = T
+num_eig = 2:10
+rho = 1
+
+# kernel distance calculation ----
+S = length(kernel_list) # number of data types
+n = nrow(kernel_list[[1]]) # number of samples
+kernel_distance_list = lapply(kernel_list, function(kernel) dist_kernels(kernel))
+
+# initialization ----
+# par initial
+initial_list = lapply(kernel_distance_list, function(distance) initial(distance, k = k))
+Z0 = lapply(kernel_distance_list, function(x){
+  x = as.matrix(x)
+  max(x)-x
+})
+
+# estimate eigvec to use for each data type
+if(update_c){
+  c_single = map_dbl(Z0, function(z){
+    estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+  })
+  print(c_single)
+}
+
+
+F0 = lapply(1:S, function(i){
+  L = diag(rowSums(Z0[[i]]))-Z0[[i]]
+  F_eig1 = eig1(L, c = c_single[i], isMax = 0)$eigvec
+  # F_eig1 = dn.cimlr(F_eig1, "ave")
+  F_eig1
+})
+Z_cur = Z0
+F_cur = F0
+w_cur = rep(1/S,S)
+Y_cur = matrix(0, n, c)
+# optimization ----
+
+# Update Z ----
+Z_pre = Z_cur
+for(s in 1:S){
+  # updata each data type separately
+  F_eig1 = F_cur[[s]]
+  distX = initial_list[[s]]$distX
+  distX1 = initial_list[[s]]$distX1
+  idx = initial_list[[s]]$idx
+  lambda = initial_list[[s]]$lambda
+  r = initial_list[[s]]$lambda
+  distf = L2_distance_1(t(F_eig1),t(F_eig1))
+  A = array(0,c(n,n))
+  b = idx[,2:dim(idx)[2]]
+  a = apply(array(0,c(n,ncol(b))),MARGIN=2,FUN=function(x){ x = 1:n })
+  inda = cbind(as.vector(a),as.vector(b)) # rank of each row aligned
+  ad = (distX[inda]+lambda*distf[inda])/2/r
+  dim(ad) = c(n,ncol(b))
+
+  # call the c function for the optimization
+  c_input = -t(ad)
+  c_output = t(ad)
+  ad = t(.Call("projsplx_R",c_input,c_output))
+  A[inda] = as.vector(ad)
+  A[is.nan(A)] = 0
+  A = (A + t(A)) / 2
+  # Z_cur[[s]] = (1 - eta) * Z_cur[[s]] + eta * A
+  Z_cur[[s]] = A
+  # if(network_diffusion){Z_cur[[s]] = network.diffusion(Z_cur[[s]], k)}
+  # Z_cur[[s]] = dn(Z_cur[[s]],"ave")
+}
+# Update number of eigen-vector to use in single
+if(update_c){
+  c_single = map_dbl(Z_cur, function(z){
+    estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+  })
+  print(c_single)
+}
 
 

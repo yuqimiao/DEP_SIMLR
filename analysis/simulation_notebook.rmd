@@ -47,7 +47,10 @@ tib_all %>% unnest(res_tib) %>%
   geom_point()
 ```
 
-2 Potential problems:
+From above, we can see that the diffusion actually decrease the performance of part-cimlr when the noise is large. One potential improvement is to update the eigenvector used for single data partition information. 
 
-1. Parition-cimlr using the true number of clusters for both single data and integrated data, while SNF and cimlr only takes true number of clusters for the integrated data
+## 220930-extension 4 cluster
 
+Here we extend the 4 cluster scenario in 220930 in terms of the following terms:
+1. Trial of part-cimlr with the update_c, i.e, with only informative eigenvecros as partition information, to see if the performance of the diffusion version of part-cimlr is improving
+2. Extend the noise_sd to see the overall performance
