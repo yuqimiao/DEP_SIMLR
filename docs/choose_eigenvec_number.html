@@ -499,16 +499,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree5e867c81e974a2d9741374c34e422bdb87134ce4targetblank5e867c8a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/5e867c81e974a2d9741374c34e422bdb87134ce4" target="_blank">5e867c8</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree8a73c58b75c1321c225575533935a46f0d9521d9targetblank8a73c58a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/8a73c58b75c1321c225575533935a46f0d9521d9" target="_blank">8a73c58</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree5e867c81e974a2d9741374c34e422bdb87134ce4targetblank5e867c8a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree8a73c58b75c1321c225575533935a46f0d9521d9targetblank8a73c58a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/5e867c81e974a2d9741374c34e422bdb87134ce4" target="_blank">5e867c8</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/8a73c58b75c1321c225575533935a46f0d9521d9" target="_blank">8a73c58</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -520,7 +520,7 @@ Ignored files:
 
 Unstaged changes:
     Modified:   code/functions/Partition_CIMLR_2.0.R
-    Modified:   code/simu_220930_analysis.R
+    Modified:   code/simu_220930.R
 
 </code></pre>
 <p>
@@ -559,6 +559,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/8a73c58b75c1321c225575533935a46f0d9521d9/analysis/choose_eigenvec_number.rmd" target="_blank">8a73c58</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/yuqimiao/DEP_SIMLR/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/choose_eigenvec_number.html" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -618,6 +652,9 @@ update
 <div id="when-to-estimate-number-of-eigen-vector-to-use" class="section level1">
 <h1>When to estimate number of eigen-vector to use?</h1>
 <p>Among the iteration steps, there are 2 steps used the eigenvectors to represents the graph laplacian matrix, Details can be found in Overleaf. Here we explore the performance of eigengap, argue that this should be used as a criteria to choose the number of eigenvector to use instead f=of an estimation of number of clusters in the graph when the graph is not clear</p>
+<p>See small noise and large noise parallely</p>
+<div id="small-noise" class="section level2">
+<h2>Small noise</h2>
 <p>data simulation, small noise</p>
 <pre class="r"><code>## simulate
 noise_sd = 1 # small noise
@@ -647,14 +684,162 @@ diag(S1) = mean(S1)
 diag(S2) = mean(S2)
 heatmap_gg(S1,&quot;data kernel&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-1.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>heatmap_gg(S2,&quot;data2, kernel&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-2">
+Past versions of unnamed-chunk-3-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-2.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># heatmap_gg(S1+S2,&quot;kernel sum&quot;)
 
 heatmap_gg(eigen(S1)$vectors[,1:5],&quot;S1 1-5 largest eigenvec&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-3">
+Past versions of unnamed-chunk-3-3.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-3.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>heatmap_gg(eigen(S2)$vectors[,1:5],&quot;S2 1-5 largest eigenvec&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-4">
+Past versions of unnamed-chunk-3-4.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-4.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>est_nclust(S1)</code></pre>
 <pre><code>[1] 2</code></pre>
 <pre class="r"><code>est_nclust(S2)</code></pre>
@@ -662,13 +847,161 @@ heatmap_gg(eigen(S1)$vectors[,1:5],&quot;S1 1-5 largest eigenvec&quot;)</code></
 <pre class="r"><code>L1 = normalized_GL(S1)
 plot(2:10, sort(eigen(L1)$values)[2:10], main = &quot;GL 1 1-5 smallest eigenval&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-5">
+Past versions of unnamed-chunk-3-5.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-5.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>L2 = normalized_GL(S2)
 plot(2:10, sort(eigen(L2)$values)[2:10], main = &quot;GL 2 1-5 smallest eigenval&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-6">
+Past versions of unnamed-chunk-3-6.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-6.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>heatmap_gg(eigen(L1)$vectors[,(n-5):n],&quot;GL 1-5 smallest eigenvec&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-7">
+Past versions of unnamed-chunk-3-7.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-7.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>heatmap_gg(eigen(L2)$vectors[,(n-5):n],&quot;GL 1-5 smallest eigenvec&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-3-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-8">
+Past versions of unnamed-chunk-3-8.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-3-8.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>c_single = 3
 compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), &quot;nmi&quot;)</code></pre>
 <pre><code>[1] 0.4348676</code></pre>
@@ -688,19 +1021,184 @@ Fs = list(data1 = eigen(L1)$vectors[,(n-c_single[1]+1):n], data2 = eigen(L2)$vec
 Ls = lapply(Fs, function(f) diag(1,n)-f %*% t(f) *2)
 Ly = Reduce(&quot;+&quot;, Ls)
 
-c = 4
+# estimate neig
+est_nclust(Ly, is_GL = T)</code></pre>
+<pre><code>[1] 3</code></pre>
+<pre class="r"><code>c = 4
 Y = eigen(Ly)$vectors[, (n-c+1):n]
 plot(2:10, sort(eigen(Ly)$values)[2:10], main = &quot;eigvec from learned Y&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-4-1.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>heatmap_gg(Y, &quot;learned Y, no weight&quot;)</code></pre>
 <p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-2">
+Past versions of unnamed-chunk-4-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/678b1291922199d625775c2c92dc1a9c9dcf616f/docs/figure/choose_eigenvec_number.rmd/unnamed-chunk-4-2.png" target="_blank">678b129</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), &quot;nmi&quot;)</code></pre>
 <pre><code>[1] 1</code></pre>
 <pre class="r"><code>c = 3
 Y = eigen(Ly)$vectors[, (n-c+1):n]
 compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), &quot;nmi&quot;)</code></pre>
 <pre><code>[1] 1</code></pre>
+<p>From the plot, only the fist 3 eigvec is informative</p>
+</div>
+<div id="large-noise" class="section level2">
+<h2>large noise</h2>
+<p>data simulation, large noise</p>
+<pre class="r"><code>## simulate
+noise_sd = 3.5 # large noise
+n_feat1 = 1000
+n_feat2 = 100000
+mu1 = c(0, 0, 1, -1)
+mu2 = c(1,-1,0,0)
+
+data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
+data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
+
+data_list = list(data1, data2)
+## benchmark
+alpha = 1
+sigma = 2 # kernel_parameter
+diffusion_form = &quot;L1&quot;
+n = nrow(data_list[[1]])
+k = floor(sqrt(n))
+# dist, kernel
+distance_list = lapply(data_list, function(x) dist2(x,x))
+kernel_list = lapply(distance_list, function(x) kernel_calculation(distance = x, k = k, sigma = sigma ))</code></pre>
+<p>single kernel eigenspace visual and cluster</p>
+<pre class="r"><code># Show clear structure
+S1 = kernel_list[[1]]
+S2 = kernel_list[[2]]
+diag(S1) = mean(S1)
+diag(S2) = mean(S2)
+heatmap_gg(S1,&quot;data kernel&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>heatmap_gg(S2,&quot;data2, kernel&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatmap_gg(S1+S2,&quot;kernel sum&quot;)
+
+heatmap_gg(eigen(S1)$vectors[,1:5],&quot;S1 1-5 largest eigenvec&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>heatmap_gg(eigen(S2)$vectors[,1:5],&quot;S2 1-5 largest eigenvec&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>est_nclust(S1)</code></pre>
+<pre><code>[1] 6</code></pre>
+<pre class="r"><code>est_nclust(S2)</code></pre>
+<pre><code>[1] 2</code></pre>
+<pre class="r"><code>L1 = normalized_GL(S1)
+plot(2:10, sort(eigen(L1)$values)[2:10], main = &quot;GL 1 1-5 smallest eigenval&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>L2 = normalized_GL(S2)
+plot(2:10, sort(eigen(L2)$values)[2:10], main = &quot;GL 2 1-5 smallest eigenval&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>heatmap_gg(eigen(L1)$vectors[,(n-5):n],&quot;GL 1-5 smallest eigenvec&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>heatmap_gg(eigen(L2)$vectors[,(n-5):n],&quot;GL 1-5 smallest eigenvec&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-6-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>c_single = 3
+compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 0.001174956</code></pre>
+<pre class="r"><code>compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 0.5092533</code></pre>
+<pre class="r"><code>c_single = 2
+compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 0.004961827</code></pre>
+<pre class="r"><code>compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 1</code></pre>
+<p>For integrated Y learn from FsFs^T, see overleaf for how we learn Y</p>
+<pre class="r"><code># learned Y, no weight
+c_single = c(2,2)
+
+Fs = list(data1 = eigen(L1)$vectors[,(n-c_single[1]+1):n], data2 = eigen(L2)$vectors[,(n-c_single[2]+1):n])
+Ls = lapply(Fs, function(f) diag(1,n)-f %*% t(f) *2)
+Ly = Reduce(&quot;+&quot;, Ls)
+# estimate neig
+est_nclust(Ly, is_GL = T)</code></pre>
+<pre><code>[1] 3</code></pre>
+<pre class="r"><code>c = 4
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+plot(2:10, sort(eigen(Ly)$values)[2:10], main = &quot;eigvec from learned Y&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>heatmap_gg(Y, &quot;learned Y, no weight&quot;)</code></pre>
+<p><img src="figure/choose_eigenvec_number.rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 0.3323257</code></pre>
+<pre class="r"><code>c = 3
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), &quot;nmi&quot;)</code></pre>
+<pre><code>[1] 0.4885371</code></pre>
 <p>Thus in our algorithm we estimate numbe of clusters in both step 2 and 3</p>
+</div>
 </div>
 <div id="discussion-next" class="section level1">
 <h1>Discussion next:</h1>
