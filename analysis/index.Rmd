@@ -15,6 +15,7 @@ Index:
 # Simulation
 
 [Simulation notebook](simulation_notebook.html)
+
 [Choose number of eigenvec](choose_eigenvec_number.html)
 # Real data
 
@@ -26,8 +27,7 @@ Index:
 
 ```{r}
 # wflow_publish(c("analysis/index.rmd",
-#                 "analysis/choose_eigenvec_number.rmd",
-#                 "analysis/simulation_notebook.rmd"
+#                 "analysis/choose_eigenvec_number.rmd"
 #                 ),"update")
 
 # wflow_publish(c("analysis/index.rmd"),"update")

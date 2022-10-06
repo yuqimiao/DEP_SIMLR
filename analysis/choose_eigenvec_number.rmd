@@ -80,6 +80,10 @@ DEP-SIMLR
 
 Among the iteration steps, there are 2 steps used the eigenvectors to represents the graph laplacian matrix, Details can be found in Overleaf. Here we explore the performance of eigengap, argue that this should be used as a criteria to choose the number of eigenvector to use instead f=of an estimation of number of clusters in the graph when the graph is not clear
 
+See small noise and large noise parallely
+
+## Small noise
+
 data simulation, small noise
 ```{r}
 ## simulate
@@ -138,7 +142,6 @@ compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(
 c_single = 2
 compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
 compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), "nmi")
-
 ```
 
 We can see clearly, we should use the first 2 eigenvector to for 3 clusters in both data 1 and data 2
@@ -151,6 +154,94 @@ c_single = c(2,2)
 Fs = list(data1 = eigen(L1)$vectors[,(n-c_single[1]+1):n], data2 = eigen(L2)$vectors[,(n-c_single[2]+1):n])
 Ls = lapply(Fs, function(f) diag(1,n)-f %*% t(f) *2)
 Ly = Reduce("+", Ls)
+
+# estimate neig
+est_nclust(Ly, is_GL = T)
+
+c = 4
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+plot(2:10, sort(eigen(Ly)$values)[2:10], main = "eigvec from learned Y")
+heatmap_gg(Y, "learned Y, no weight")
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
+
+c = 3
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
+```
+
+From the plot, only the fist 3 eigvec is informative
+
+## large noise
+
+data simulation, large noise
+```{r}
+## simulate
+noise_sd = 3.5 # large noise
+n_feat1 = 1000
+n_feat2 = 100000
+mu1 = c(0, 0, 1, -1)
+mu2 = c(1,-1,0,0)
+
+data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
+data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
+
+data_list = list(data1, data2)
+## benchmark
+alpha = 1
+sigma = 2 # kernel_parameter
+diffusion_form = "L1"
+n = nrow(data_list[[1]])
+k = floor(sqrt(n))
+# dist, kernel
+distance_list = lapply(data_list, function(x) dist2(x,x))
+kernel_list = lapply(distance_list, function(x) kernel_calculation(distance = x, k = k, sigma = sigma ))
+```
+
+single kernel eigenspace visual and cluster
+```{r}
+# Show clear structure
+S1 = kernel_list[[1]]
+S2 = kernel_list[[2]]
+diag(S1) = mean(S1)
+diag(S2) = mean(S2)
+heatmap_gg(S1,"data kernel")
+heatmap_gg(S2,"data2, kernel")
+# heatmap_gg(S1+S2,"kernel sum")
+
+heatmap_gg(eigen(S1)$vectors[,1:5],"S1 1-5 largest eigenvec")
+heatmap_gg(eigen(S2)$vectors[,1:5],"S2 1-5 largest eigenvec")
+
+est_nclust(S1)
+est_nclust(S2)
+
+L1 = normalized_GL(S1)
+plot(2:10, sort(eigen(L1)$values)[2:10], main = "GL 1 1-5 smallest eigenval")
+
+L2 = normalized_GL(S2)
+plot(2:10, sort(eigen(L2)$values)[2:10], main = "GL 2 1-5 smallest eigenval")
+
+heatmap_gg(eigen(L1)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
+heatmap_gg(eigen(L2)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
+
+c_single = 3
+compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
+compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), "nmi")
+
+c_single = 2
+compare(kmeans(eigen(L1)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
+compare(kmeans(eigen(L2)$vectors[,(n-c_single+1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), "nmi")
+```
+
+For integrated Y learn from FsFs^T, see overleaf for how we learn Y
+```{r}
+# learned Y, no weight
+c_single = c(2,2)
+
+Fs = list(data1 = eigen(L1)$vectors[,(n-c_single[1]+1):n], data2 = eigen(L2)$vectors[,(n-c_single[2]+1):n])
+Ls = lapply(Fs, function(f) diag(1,n)-f %*% t(f) *2)
+Ly = Reduce("+", Ls)
+# estimate neig
+est_nclust(Ly, is_GL = T)
 
 c = 4
 Y = eigen(Ly)$vectors[, (n-c+1):n]
