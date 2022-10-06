@@ -8,10 +8,10 @@ dyn.load("code/R/projsplx_R.so")
 # * distance_list: distance list for the data types
 # * k: numbers of neighbors in KNN, indicating the structure of single data
 # * sigme: kernel parameter on the denominator
-# * local_diffusion: T/F, indicating whether use the one-layer diffusion
+# * local_diffusion: T/F, indicating whether use the severlayer diffusion
 # * alpha: local_diffusion parameter, indicating the importance of local diffusion, default is 0.8
+# * diffusion_form: local_diffusion parameter, choose diffusion form,, L1-L3 form can be chosen,  see the function for details
 # * network_diffusion: T/F: indicating whether use the network.diffusion from [[@Wang2018Network]]
-# * c_single: a s vector containing the number of clusters for each data type
 
 kernel_list_generation = function(data_list = NA, distance_list = NA,
                                   k = 10, sigma = 2,
@@ -37,10 +37,10 @@ kernel_list_generation = function(data_list = NA, distance_list = NA,
 # Input:
 # * kernel_list: kernels/affinity matrix generated from kernel_list_generation function, or any other similarity matrix, symmetric, semi-pos-def
 # * k: numbers of neighbors in KNN, indicating the structure of single data
-# * c_single: a s vector containing the number of clusters for each data type
 # * c: number of clusters estimated for integrated similarity matrix
-# * update_c: whether we update c based on the new weighted sum of the partition information
-# * num_eig: candidate number of eigen vec to use in single data partition information F_s
+# * neig_single: a s vector containing the number of eigenvec to use in each data type
+# * update_neig: whether we update c based on the new weighted sum of the partition information
+# * num_eig_candidate: candidate number of eigen vec to use in single data partition information F_s
 # * rho:: importance of integrated data to single partition learning
 # Output:
 # * cluster: cluster result for each subject
@@ -54,10 +54,11 @@ kernel_list_generation = function(data_list = NA, distance_list = NA,
 # generate kernel list before optimization
 part_cimlr = function(kernel_list,
                       k = 10,
-                      c_single = NA, # a s vector containing the number of clusters for each data type
                       c,
-                      update_c = F,
-                      num_eig = 2:10,
+                      neig_single = NA,
+                      neig_all = NA,
+                      update_neig = F,
+                      num_eig_candidate = 2:10,
                       rho = 1
                       ){
   # kernel distance calculation ----
@@ -74,17 +75,17 @@ part_cimlr = function(kernel_list,
   })
 
   # estimate eigvec to use for each data type
-  if(update_c){
-    c_single = map_dbl(Z0, function(z){
-      estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+  if(update_neig){
+    neig_single = map_dbl(Z0, function(z){
+      est_nclust(z,num_eig = num_eig)
     })
-    print(c_single)
+    print(neig_single)
   }
 
 
   F0 = lapply(1:S, function(i){
     L = diag(rowSums(Z0[[i]]))-Z0[[i]]
-    F_eig1 = eig1(L, c = c_single[i], isMax = 0)$eigvec
+    F_eig1 = eig1(L, c = neig_single[i], isMax = 0)$eigvec
     # F_eig1 = dn.cimlr(F_eig1, "ave")
     F_eig1
   })
@@ -126,12 +127,13 @@ part_cimlr = function(kernel_list,
       # if(network_diffusion){Z_cur[[s]] = network.diffusion(Z_cur[[s]], k)}
       # Z_cur[[s]] = dn(Z_cur[[s]],"ave")
     }
+
     # Update number of eigen-vector to use in single
-    if(update_c){
-      c_single = map_dbl(Z_cur, function(z){
-        estimateNumberOfClustersGivenGraph(z, NUMC = num_eig)[[1]]
+    if(update_neig){
+      neig_single = map_dbl(Z_cur, function(z){
+        est_nclust(z, num_eig = num_eig)
       })
-      print(c_single)
+      print(neig_single)
     }
     # Update F ----
     F_pre = F_cur
@@ -141,7 +143,7 @@ part_cimlr = function(kernel_list,
       Lz = normalized_GL(Y_cur %*% t(Y_cur))
       lambda = initial_list[[s]]$lambda
       r = initial_list[[s]]$lambda
-      F_eig1 = eig1(lambda*L+rho*lambda*w_cur[[s]]*Lz, isMax = 0, c = c_single[[s]] )$eigvec
+      F_eig1 = eig1(lambda*L+rho*lambda*w_cur[[s]]*Lz, isMax = 0, c = neig_single[[s]] )$eigvec
       F_cur[[s]] = F_eig1
     }
     # Update Y ----
@@ -151,8 +153,13 @@ part_cimlr = function(kernel_list,
       L = diag(1,n)-F_cur[[s]]%*%t(F_cur[[s]])*2
       weight_L = weight_L+w_cur[[s]]*L
     }
-    # if(update_c) c = estimateNumberOfClustersGivenGraph((diag(1,n)-weight_L), NUMC = numc)[[1]]
-    Y_cur = eig1(weight_L, isMax = 0, c = c )$eigvec
+    # update neig_all, number of eigenvec to use in integrated partition, if not update, the same as c
+    if(update_neig){
+      neig_all = est_nclust(S = weight_L, num_eig = num_eig, is_GL = T)
+    }else{
+      neig_all = c
+    }
+    Y_cur = eig1(weight_L, isMax = 0, c = neig_all)$eigvec
 
     # Update w empirically
     w_pre = w_cur
@@ -406,3 +413,21 @@ normalized_GL = function(affinity, type = 3){
   return(d)
 
 }
+
+
+# S: similarity graph/ Graph laplacian to estimate,
+# num_eig = 2:11 candidate number of clusters to use to avoid picking abusion
+# is_GL = F whether the input matrix is graph laplacian
+est_nclust = function(S, num_eig = 2:11, is_GL = F){
+  eig_val = ifelse(is_GL, sort(eigen(S)$values,decreasing = F), eigen(S)$values)
+  former = eig_val[1:(length(eig_val)-1)]
+  latter = eig_val[2:(length(eig_val))]
+  diff = abs(former-latter)
+  est = which.max(diff)
+  if(est<min(num_eig)) est = min(num_eig)
+  if(est>max(num_eig)) est = max(num_eig)
+
+  return(est)
+}
+
+

@@ -88,14 +88,12 @@ get_data_4clust = function(n_sub = 200,
 # get kernel and diff kernel ----
 
 
-noise_sd_all = seq(1,3,0.5)
-
 ## simulate
 n_feat1 = 1000
 n_feat2 = 100000
 mu1 = c(0, 0, 1, -1)
 mu2 = c(1,-1,0,0)
-noise_sd = 1
+noise_sd = 3.25
 
 data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
 data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
@@ -115,30 +113,66 @@ source("code/functions/visualization_functions.R")
 distance_list = lapply(data_list, function(x) dist2(x,x))
 kernel_list = lapply(distance_list, function(x) kernel_calculation(distance = x, k = k, sigma = sigma ))
 diff_kernel_list = lapply(kernel_list, function(x) diffusion_enhancement(kernel = x, alpha = alpha, k = k , diffusion_form = diffusion_form))
-S = kernel_list[[1]]
-S0 = S
-diag(S0) = mean(S0)
-heatmap_gg(S0,"kernel")
+
 
 S1 = kernel_list[[1]]
 S2 = kernel_list[[2]]
 diag(S1) = mean(S1)
 diag(S2) = mean(S2)
+heatmap_gg(S1,"data kernel")
+heatmap_gg(S2,"data2, kernel")
 heatmap_gg(S1+S2,"kernel sum")
 
 heatmap_gg(eigen(S1)$vectors[,1:5],"S1 first 5")
 heatmap_gg(eigen(S2)$vectors[,1:5],"S2 first 5")
-heatmap_gg(eigen(S1+S2)$vectors[,1:5],"S1+S2 first 5")
+
+est_nclust(S1)
+est_nclust(S2)
 
 
-L = normalized_GL(S)
-estimateNumberOfClustersGivenGraph(S,2:5)
-plot((n-10):(n-1), eigen(L)$values[(n-10):(n-1)])
-heatmap_gg(eigen(L)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
-compare(kmeans(eigen(S)$vectors[,2],3)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
+
+L1 = normalized_GL(S1)
+plot(2:10, sort(eigen(L1)$values)[2:10], main = "GL 1 1-5 smallest eigenval")
+
+L2 = normalized_GL(S2)
+plot(2:10, sort(eigen(L2)$values)[2:10], main = "GL 2 1-5 smallest eigenval")
+
+heatmap_gg(eigen(L1)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
+heatmap_gg(eigen(L2)$vectors[,(n-5):n],"GL 1-5 smallest eigenvec")
+
+compare(kmeans(eigen(L1)$vectors[,(n-2):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
+compare(kmeans(eigen(L1)$vectors[,(n-1):n],3, nstart = 200)$cluster, c(rep(1,100), rep(2:3, each = 50)), "nmi")
+
+compare(kmeans(eigen(L2)$vectors[,(n-2):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), "nmi")
+compare(kmeans(eigen(L2)$vectors[,(n-1):n],3, nstart = 200)$cluster, c(rep(1:2, each = 50), rep(3,100)), "nmi")
+
+# cbind Y
+Y = cbind(eigen(L1)$vectors[,(n-1):n], eigen(L2)$vectors[,(n-1):n])
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
+
+
+Y = cbind(eigen(L1)$vectors[,(n-2):n], eigen(L2)$vectors[,(n-2):n])
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
+
+# learned Y, no weight
+c_single = c(2,2)
+
+Fs = list(data1 = eigen(L1)$vectors[,(n-c_single[1]+1):n], data2 = eigen(L2)$vectors[,(n-c_single[2]+1):n])
+Ls = lapply(Fs, function(f) diag(1,n)-f %*% t(f) *2)
+Ly = Reduce("+", Ls)
+
+c = 4
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+plot(2:10, sort(eigen(Ly)$values)[2:10], main = "eigvec from learned Y")
+heatmap_gg(Y, "learned Y, no weight")
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
+
+c = 3
+Y = eigen(Ly)$vectors[, (n-c+1):n]
+compare(kmeans(Y, 4, nstart = 200)$cluster, rep(1:4, each = 50), "nmi")
 
 # update diffusion_kernel makes worse performance?
-kernel_list = diff_kernel_list
+kernel_list = kernel_list
 c=4
 update_c = T
 num_eig = 2:10
@@ -215,5 +249,4 @@ if(update_c){
   })
   print(c_single)
 }
-
 

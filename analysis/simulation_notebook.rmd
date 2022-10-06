@@ -30,12 +30,14 @@ The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) f
 ```{r}
 # data read in
 dir = "/Volumes/sw2206/yuqi/simu_220930"
-files = list.files(dir)
-tib_all = NULL
-for(i in 1:length(files)){
-  tib = readRDS(paste(dir,"/", files[i], sep = ""))
-  tib_all = rbind(tib_all, tib)
-}
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
+#   tib_all = rbind(tib_all, tib)
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
 
 tib_all %>% unnest(res_tib) %>% 
   group_by(noise_sd, kernel, method) %>% 
@@ -59,12 +61,15 @@ Here we extend the 4 cluster scenario in 220930 in terms of the following terms:
 ```{r}
 # data read in
 dir = "/Volumes/sw2206/yuqi/simu_220930_2"
-files = list.files(dir)
-tib_all = NULL
-for(i in 1:length(files)){
-  tib = readRDS(paste(dir,"/", files[i], sep = ""))
-  tib_all = rbind(tib_all, tib)
-}
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
+#   tib_all = rbind(tib_all, tib)
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
 
 tib_all %>% unnest(res_tib) %>% 
   group_by(noise_sd, kernel, method) %>% 
