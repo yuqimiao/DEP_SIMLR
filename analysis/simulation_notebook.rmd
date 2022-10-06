@@ -41,6 +41,7 @@ tib_all %>% unnest(res_tib) %>%
   group_by(noise_sd, kernel, method) %>% 
   summarize(mean_nmi = mean(nmi),
          sd_nmi = sd(nmi)) %>% 
+  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
   geom_line(aes(linetype=kernel, color = method))+
   # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
@@ -53,4 +54,27 @@ From above, we can see that the diffusion actually decrease the performance of p
 
 Here we extend the 4 cluster scenario in 220930 in terms of the following terms:
 1. Trial of part-cimlr with the update_c, i.e, with only informative eigenvecros as partition information, to see if the performance of the diffusion version of part-cimlr is improving
-2. Extend the noise_sd to see the overall performance
+2. Extend the noise_sd to see the overall performance: noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
+
+```{r}
+# data read in
+dir = "/Volumes/sw2206/yuqi/simu_220930_2"
+files = list.files(dir)
+tib_all = NULL
+for(i in 1:length(files)){
+  tib = readRDS(paste(dir,"/", files[i], sep = ""))
+  tib_all = rbind(tib_all, tib)
+}
+
+tib_all %>% unnest(res_tib) %>% 
+  group_by(noise_sd, kernel, method) %>% 
+  summarize(mean_nmi = mean(nmi),
+         sd_nmi = sd(nmi)) %>% 
+  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
+  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
+  geom_point()
+```
+
+From the simulation result, we can see that the performance of part_cimlr_up has a sharp drop when the noise_sd increase to 3.25 from 3. I start a new notebook [here](choose_eigenvec_number.html) to illustrate the possible reasons and improvement. In a word, once we want to use eigenvector to represents the similarity matrix/GL matrix, we need to use eigengap to find the eigenvectors actually contains information. 
