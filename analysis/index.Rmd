@@ -17,6 +17,7 @@ Index:
 [Simulation notebook](simulation_notebook.html)
 
 [Choose number of eigenvec](choose_eigenvec_number.html)
+
 # Real data
 
 ## TCGA analysis
@@ -27,7 +28,7 @@ Index:
 
 ```{r}
 # wflow_publish(c("analysis/index.rmd",
-#                 "analysis/choose_eigenvec_number.rmd"
+#                 "analysis/TCGA_survival_analysis.rmd"
 #                 ),"update")
 
 # wflow_publish(c("analysis/index.rmd"),"update")

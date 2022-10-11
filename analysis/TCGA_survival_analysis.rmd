@@ -15,6 +15,8 @@ library(flexsurv)
 library(survival)
 library(MASS)
 library(survminer)
+library(GGally)
+source("./code/functions/visualization_functions.R")
 ```
 
 # Introduction and Raw data description
@@ -451,7 +453,12 @@ mds_part/surv_part
 ```
 
 
-# Number of cluster tunning
+# 3 data type: Number of cluster tunning
+
+In this section, we include the mutation data in the distance based integration. The reason we can't use weighted distance is that there is no normal mutation data. 
+
+So overall, **gene expression, methylation and mutation is used for integration**
+
 Read in, generated from analysis.r
 ```{r}
 res_tib_integ_nc = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/res_tib_integ_nc.rds")
@@ -460,36 +467,183 @@ surv_pv_integ_nc = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_
 
 <0.05 combination
 ```{r}
-surv_pv_integ_nc %>%
-  filter(cancer == "lihc") %>%
+surv_pv_0.05 = surv_pv_integ_nc %>%
+  filter(dist_type == "dist") %>% 
   unnest(surv_pv)%>%
   filter(surv_pv<0.05) %>% 
   arrange(surv_pv)
+
+knitr::kable(surv_pv_0.05)
+
+lihc_nc6 = res_tib_integ_nc %>% 
+  filter(cancer == "lihc" & dist_type == "dist" & kernel_type == "kernel" & n_cluster == 6)
+table(lihc_nc6$surv_tib[[1]]$cluster)
+table(lihc_nc6$surv_tib[[2]]$cluster)
+table(lihc_nc6$surv_tib[[3]]$cluster)
 ```
 
-lihc survival analysis, nc = 6
+from this tunning result, look at n_cluster = 4 for kirp and n_clust = 3/6 for lihc
+
+## kirp analysis, nc = 4
+
+### survival plot
 ```{r}
-lihc_surv_tib_nc6 = res_tib_integ_nc %>%
+kirp_surv_tib_nc = res_tib_integ_nc %>%
+  filter(cancer == "kirp" & n_cluster == 4 & dist_type == "dist") %>%
+  dplyr::select(cancer, kernel_type,method, surv_tib) 
+# add survplot
+kirp_surv_tib_nc_plot = kirp_surv_tib_nc %>% 
+  mutate(surv_plot = pmap(list(tib = surv_tib, kernel_type = kernel_type, method = method), function(tib, kernel_type, method){
+    fit = survfit(Surv(days_to_death, censoring)~cluster,
+              data = tib)
+    g = ggsurvplot(fit, tib, pval=T)+
+      ggtitle(paste(kernel_type, method))
+    g$plot
+  }))
+
+ggarrange(plotlist = kirp_surv_tib_nc_plot$surv_plot, 
+          ncol = 3, nrow = 2,
+          common.legend = T
+          )
+```
+
+### heatmap
+
+data tidy function
+```{r}
+top_feat_data_tidy = function(feature_path = "/Volumes/sw2206/yuqi/data_20220308/kirp/cancer/kirp_ge_cancer.Rdata",
+                              common_sample_path = "/Volumes/sw2206/yuqi/data_20220308/common_sample.rds",
+                              feature_weight_path = "/Volumes/sw2206/yuqi/data_20220308/output/kirp_ge_cancer_w.rds",
+                              n_feat = 50){
+  common_sample = readRDS(common_sample_path)
+  data_name = load(feature_path)
+  data = eval(parse(text = data_name))
+  cancer = str_sub(data_name,1,4)
+  # intersect with common sample
+  common_sample_cur = common_sample[[which(str_sub(names(common_sample),1,4) == cancer)]]
+  colnames(data) = str_sub(colnames(data), -4,-1)
+  data = data[,common_sample_cur]
+
+  # get weight ranked top 50
+  fw = readRDS(feature_weight_path)
+  names(fw) = rownames(data)
+  fw_sort = sort(fw, decreasing = T)[1:n_feat]
+  feat_sorted_names = names(fw_sort)
+  data = data[feat_sorted_names,]
+
+  return(list(data = data,
+              feat_weight_sort = fw_sort))
+}
+```
+
+```{r}
+kirp_nc4 = res_tib_integ_nc %>%
+  filter(cancer == "kirp" & n_cluster == 4) %>%
+  filter(kernel_type == "diff_kernel" & dist_type == "dist")
+
+# color bar ----
+
+cluster_ls = kirp_nc4$cluster
+names(cluster_ls) = kirp_nc4$method
+g_color_bar = color_bar_cl(cluster_ls = cluster_ls) # in visualization function
+
+# feature heatmap ----
+sample_order = (tibble(sample_id = names(cluster_ls[[1]]),
+                      cluster = cluster_ls$part_cimlr) %>%
+  arrange(cluster) %>%
+  pull(sample_id))
+## ge
+# tidy
+kirp_ge_ls = top_feat_data_tidy(feature_path = "/Volumes/sw2206/yuqi/data_20220308/kirp/cancer/kirp_ge_cancer.Rdata",
+                                common_sample_path = "/Volumes/sw2206/yuqi/data_20220308/common_sample.rds",
+                                feature_weight_path = "/Volumes/sw2206/yuqi/data_20220308/output/kirp_ge_cancer_w.rds",
+                                n_feat = 100)
+# plot
+mat_ge = kirp_ge_ls$data
+g_ge = feature_heatmap(mat = mat_ge,
+                column_id_order = sample_order,
+                row_id_order = rownames(mat_ge),
+                name = "KIRP Gene Expression top 100 heatmap",
+                discrete = F)
+
+## me
+# tidy
+kirp_me_ls = top_feat_data_tidy(feature_path = "/Volumes/sw2206/yuqi/data_20220308/kirp/cancer/kirp_me_cancer.Rdata",
+                                common_sample_path = "/Volumes/sw2206/yuqi/data_20220308/common_sample.rds",
+                                feature_weight_path = "/Volumes/sw2206/yuqi/data_20220308/output/kirp_me_cancer_w.rds",
+                                n_feat = 100)
+# plot
+mat_me = kirp_me_ls$data
+g_me = feature_heatmap(mat = mat_me,
+                       column_id_order = sample_order,
+                       row_id_order = rownames(mat_me),
+                       name = "KIRP Methylation top 100 heatmap",
+                       discrete = F)
+```
+
+Gene expression
+```{r}
+ggarrange(plotlist = list(g_ge,g_color_bar),
+          nrow = 2,
+          label.x = "sample",
+          align = "v",
+          heights = c(4,2))
+ggsave("code/Code_collection/TCGA_survival_analysis/kirp_gene_heatmap.png")
+```
+
+Methylation
+```{r}
+ggarrange(plotlist = list(g_me,g_color_bar),
+          nrow = 2,
+          label.x = "sample",
+          align = "v",
+          heights = c(4,2))
+ggsave("code/Code_collection/TCGA_survival_analysis/kirp_methylation_heatmap.png")
+```
+
+## lihc  analysis, nc = 3
+
+```{r}
+lihc_surv_tib_nc = res_tib_integ_nc %>%
+  filter(cancer == "lihc" & n_cluster == 3 & dist_type == "dist") %>%
+  dplyr::select(cancer, kernel_type,method, surv_tib) 
+# add survplot
+lihc_surv_tib_nc_plot = lihc_surv_tib_nc %>% 
+  mutate(surv_plot = pmap(list(tib = surv_tib, kernel_type = kernel_type, method = method), function(tib, kernel_type, method){
+    fit = survfit(Surv(days_to_death, censoring)~cluster,
+              data = tib)
+    g = ggsurvplot(fit, tib, pval=T)+
+      ggtitle(paste(kernel_type, method))
+    g$plot
+  }))
+
+ggarrange(plotlist = lihc_surv_tib_nc_plot$surv_plot, 
+          ncol = 3, nrow = 2,
+          common.legend = T
+          )
+```
+
+## lihc  analysis, nc = 6
+
+```{r}
+lihc_surv_tib_nc = res_tib_integ_nc %>%
   filter(cancer == "lihc" & n_cluster == 6 & dist_type == "dist") %>%
-  dplyr::select(cancer, kernel_type,method, surv_tib) %>%
-  unnest(surv_tib) 
-surv_6 = ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
-                                  data = lihc_surv_tib_nc6),
-                          data = lihc_surv_tib_nc6,
-                          facet.by = c("kernel_type", "method"))+
-  ggtitle("Survival curve for lihc using integrated original distance, nc = 6")
+  dplyr::select(cancer, kernel_type,method, surv_tib) 
+# add survplot
+lihc_surv_tib_nc_plot = lihc_surv_tib_nc %>% 
+  mutate(surv_plot = pmap(list(tib = surv_tib, kernel_type = kernel_type, method = method), function(tib, kernel_type, method){
+    fit = survfit(Surv(days_to_death, censoring)~cluster,
+              data = tib)
+    g = ggsurvplot(fit, tib, pval=T)+
+      ggtitle(paste(kernel_type, method))
+    g$plot
+  }))
 
-surv_6
+ggarrange(plotlist = lihc_surv_tib_nc_plot$surv_plot, 
+          ncol = 3, nrow = 2,
+          common.legend = T
+          )
 ```
-
-Extreme case for surv_6
-```{r}
-part_cim_kernel = lihc_surv_tib_nc6 %>%
-  filter(method == "part_cimlr" & kernel_type == "kernel")
-table(part_cim_kernel$cluster)
-```
-
-Potentially, when extracting partition information from the single data, only the major variation is captured instead of the small, blur variation.
 
 # work log
 
