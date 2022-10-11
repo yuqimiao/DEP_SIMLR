@@ -50,8 +50,9 @@ single_cancer_obj_generate = function(distance_path,
 dir = "data_20220308/output/"
 common_sample = readRDS("data_20220308/common_sample.rds")
 path_tib = expand_grid(cancer = c("kirp","lihc"),
-                       type = c("ge","me"),
+                       type = c("ge","me", "mu"),
                        dist_type = c("dist","dist_w")) %>%
+  filter(!(dist_type == "dist_w" & type == "mu")) %>%
   mutate(tag = paste(cancer,type,"cancer",dist_type, sep = "_")) %>%
   mutate(distance_path = paste(dir, tag, ".rds",sep = "")) %>%
   mutate(output_path = paste(dir, "cancer_object/", tag, "_obj", ".rds", sep = "")) %>%
@@ -116,7 +117,7 @@ benchmark_tib = benchmark_tib%>%
     n = nrow(ls[[1]])
     k = floor(sqrt(n))
     print("here")
-    res = part_cimlr(kernel_list = ls, c_single = c_single, c = c)
+    res = part_cimlr(kernel_list = ls,k = k, c = c,neig_single = c_single, update_neig = F)
     return(list(S = res$Y %*% t(res$Y),
                 cluster = res$cluster))
   }))
@@ -135,7 +136,7 @@ benchmark_tib = benchmark_tib%>%
 saveRDS(benchmark_tib, "data_20220308/output/benchmark_res/benchmark_tib.rds")
 
 # add cluster result with different number of clusters as options
-kernel_tib = readRDS("data_20220308/output/benchmark_res/benchmark_tib.rds")
+kernel_tib = readRDS("data_20220308/output/benchmark_res/kernel_tib.rds")
 
 benchmark_nc_tune_tib = tibble(n_cluster = 3:6) %>%
   mutate(res_tib = map(n_cluster, function(nc){
@@ -154,7 +155,7 @@ benchmark_nc_tune_tib = tibble(n_cluster = 3:6) %>%
         cat("part_cimlr", nc)
         n = nrow(ls[[1]])
         k = floor(sqrt(n))
-        res = part_cimlr(kernel_list = ls, c_single = c_single, c = nc)
+        res = part_cimlr(kernel_list = ls, k = k, neig_single = c_single, c = nc, update_neig = F)
         return(list(S = res$Y %*% t(res$Y),
                     cluster = res$cluster))
       })) %>%
@@ -166,7 +167,7 @@ benchmark_nc_tune_tib = tibble(n_cluster = 3:6) %>%
         return(list(S = res$S,
                     cluster = res$cluster))
       }))
-    saveRDS(tib, paste("data_20220308/output/benchmark_res/benchmark_nc_tunning_", c, ".rds", sep = ""))
+    saveRDS(tib, paste("data_20220308/output/benchmark_res/benchmark_nc_tunning_", nc, ".rds", sep = ""))
     return(tib)
   }))
 

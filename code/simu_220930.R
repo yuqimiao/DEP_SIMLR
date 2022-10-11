@@ -3,11 +3,11 @@ setwd("/ifs/scratch/msph/biostat/sw2206/yuqi")
 task_ID = as.integer(Sys.getenv("SGE_TASK_ID"))
 N= 1:8000
 task_id = N[task_ID]
-dir = "simu_220930_2"
+dir = "simu_220930_3"
 library(tidyverse)
 library(igraph)
 # simulation for 4 clusters, data 1 separates 1/2A/2B, data 2 separates 1A/1B/2 ----
-# output:
+# output
 # data matrix with n_sub*n_feat
 
 get_data_4clust = function(n_sub = 200,
@@ -81,13 +81,13 @@ res_snf = list(S = S_snf,
 res_cimlr = CIMLR_kernel(kernel_list, c = 4, k = k)
 
 # part_CIMLR
-res_part_cimlr = part_cimlr(kernel_list, k = k, c_single = rep(3,2), c = 4)
+res_part_cimlr = part_cimlr(kernel_list, k = k, neig_single = rep(3,2), c = 4)
 Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
 
 # part_CIMLR with updated c
-res_part_cimlr_up = part_cimlr(kernel_list, k = k, c = 4, update_c = T)
+res_part_cimlr_up = part_cimlr(kernel_list, k = k, c = 4, update_neig = T)
 Y = res_part_cimlr_up$Y
 res_part_cimlr_up = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr_up$cluster)
@@ -105,13 +105,13 @@ res_snf = list(S = S_snf,
 res_cimlr = CIMLR_kernel(diff_kernel_list, c = 4, k = k)
 
 # part_CIMLR
-res_part_cimlr = part_cimlr(diff_kernel_list, k = k, c_single = rep(3,2), c = 4)
+res_part_cimlr = part_cimlr(diff_kernel_list, k = k, neig_single = rep(3,2), c = 4)
 Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
 
 # part_CIMLR with updated c
-res_part_cimlr_up = part_cimlr(diff_kernel_list, k = k, c = 4, update_c = T)
+res_part_cimlr_up = part_cimlr(diff_kernel_list, k = k, c = 4, update_neig = T)
 Y = res_part_cimlr_up$Y
 res_part_cimlr_up = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr_up$cluster)

@@ -158,6 +158,8 @@ saveRDS(cluster_dist_tib, "/Volumes/sw2206/yuqi/data_20220308/output/benchmark_r
 
 # add survival to integrated result tib, with tunning number of clusters ----
 benchmark_nc_tunning = readRDS("/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/benchmark_nc_tunning.rds")
+clinical_dir = "/Users/miaoyuqi/Desktop/temp_data"
+
 res_tib_integ_nc = benchmark_nc_tunning %>% # tidy, make the columns of res to a long column
   pivot_longer(c(SNF,part_cimlr, cimlr),
                names_to = "method",
@@ -191,6 +193,7 @@ saveRDS(res_tib_integ_nc, "/Volumes/sw2206/yuqi/data_20220308/output/benchmark_r
 surv_pv_integ_nc = res_tib_integ_nc%>%
   mutate(type = "integration") %>%
   dplyr::select(c(cancer, dist_type, type, kernel_type, method, n_cluster, surv_pv))
+
 saveRDS(surv_pv_integ_nc, "/Volumes/sw2206/yuqi/data_20220308/output/benchmark_res/surv_pv_integ_nc.rds")
 
  # part_cimlr, kernel, c = 6 get 9e-10?

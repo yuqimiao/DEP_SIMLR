@@ -40,7 +40,7 @@ kernel_list_generation = function(data_list = NA, distance_list = NA,
 # * c: number of clusters estimated for integrated similarity matrix
 # * neig_single: a s vector containing the number of eigenvec to use in each data type
 # * update_neig: whether we update c based on the new weighted sum of the partition information
-# * num_eig_candidate: candidate number of eigen vec to use in single data partition information F_s
+# * num_eig: candidate number of eigen vec to use in single data partition information F_s
 # * rho:: importance of integrated data to single partition learning
 # Output:
 # * cluster: cluster result for each subject
@@ -56,9 +56,8 @@ part_cimlr = function(kernel_list,
                       k = 10,
                       c,
                       neig_single = NA,
-                      neig_all = NA,
                       update_neig = F,
-                      num_eig_candidate = 2:10,
+                      num_eig = 2:10,
                       rho = 1
                       ){
   # kernel distance calculation ----
@@ -419,12 +418,16 @@ normalized_GL = function(affinity, type = 3){
 # num_eig = 2:11 candidate number of clusters to use to avoid picking abusion
 # is_GL = F whether the input matrix is graph laplacian
 est_nclust = function(S, num_eig = 2:11, is_GL = F){
-  eig_val = ifelse(is_GL, sort(eigen(S)$values,decreasing = F), eigen(S)$values)
-  former = eig_val[1:(length(eig_val)-1)]
-  latter = eig_val[2:(length(eig_val))]
+  if(is_GL){
+    eig_val = sort(eigen(S)$values,decreasing = F)
+  }else{
+    eig_val = eigen(S)$values
+  }
+  former = eig_val[min(num_eig):(length(eig_val)-1)]
+  latter = eig_val[(min(num_eig)+1):(length(eig_val))]
   diff = abs(former-latter)
-  est = which.max(diff)
-  if(est<min(num_eig)) est = min(num_eig)
+  est = which.max(diff)+ (min(num_eig)-1)
+  # if(est<min(num_eig)) est = min(num_eig)
   if(est>max(num_eig)) est = max(num_eig)
 
   return(est)

@@ -87,3 +87,26 @@ saveRDS(dist, file = paste(dir, "/output/", cancer_data_name, "_dist.rds", sep =
 saveRDS(dist_w, file = paste(dir, "/output/", cancer_data_name, "_dist_w.rds", sep = ""))
 saveRDS(w_vec, file = paste(dir, "/output/", cancer_data_name, "_w.rds", sep = ""))
 
+# mutation calculation, run by console, not submit ----
+
+dir = "data_20220308"
+name_tib = expand_grid(cancer = c("brca","kirp","lihc"),
+                       type = "mu") %>%
+  mutate(id = seq_along(cancer))
+
+for(n in 1:3){
+  cancer = name_tib[n,]$cancer
+  type = name_tib[n,]$type
+  cancer_path = paste(dir, cancer,"cancer", paste(cancer,type,"cancer.Rdata", sep = "_"), sep = "/")
+  cancer_data_name = load(cancer_path)
+  cancer_data = eval(parse(text = cancer_data_name))
+  cancer_data = cancer_data[,colnames(cancer_data)!="NAME"]
+  dist = dist2(t(cancer_data),t(cancer_data))
+  saveRDS(dist, file = paste(dir, "/output/", cancer_data_name, "_cancer_dist.rds", sep = ""))
+  print(paste(dir, "/output/", cancer_data_name, "_cancer_dist.rds", sep = ""))
+}
+
+
+
+
+

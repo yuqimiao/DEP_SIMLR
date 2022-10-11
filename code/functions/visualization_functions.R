@@ -112,3 +112,76 @@ heatmap_gg = function(mat, name, discrete = F){
   }
   g
 }
+
+
+# input: list of clusters, list(method=cluster_label)
+# output: colorbar plot
+color_bar_cl = function(cluster_ls){
+  tib = as_tibble(cluster_ls) %>%
+    mutate(id = names(cluster_ls[[1]])) %>%
+    pivot_longer(cols = c(part_cimlr, cimlr, SNF),
+                 names_to = "method",
+                 values_to = "cluster") %>%
+    mutate(cluster = as.factor(cluster),
+           method = factor(method, levels = c("part_cimlr","cimlr","SNF"))) %>%
+    arrange(method,cluster)
+  tib = tib %>%
+    mutate(id = factor(id, levels = tib$id[1:length(cluster_ls[[1]])]))
+
+
+  # Stacked
+  g = ggplot(tib, aes(fill=cluster, x=id, y=method)) +
+    geom_tile()+
+    theme(axis.text.x = element_text(size = 3, angle = 45, hjust = 0.8))
+  return(g)
+}
+
+feature_heatmap = function(mat = matrix(rnorm(50000), nrow = 500),
+                           column_id_order = NA,
+                           row_id_order = NA,
+                           discrete = F,
+                           xlab = "sample",
+                           ylab = "feature",
+                           name = "? feature heatmap"){
+  if(is.null(colnames(mat))){
+    rownames(mat) = 1:dim(mat)[1]
+    colnames(mat) = 1:dim(mat)[2]
+  }
+  # dat_melt = as_tibble(melt(mat))
+  dat_melt = as_tibble(mat) %>%
+    mutate(rows = rownames(mat)) %>%
+    pivot_longer(cols = colnames(mat),
+                 names_to = "columns",
+                 values_to = "value")
+
+  if(!is.na(column_id_order)){
+    dat_melt = dat_melt %>%
+      mutate(columns = factor(columns, levels = column_id_order))
+  }
+
+  if(!is.na(row_id_order)){
+    dat_melt = dat_melt %>%
+      mutate(rows = factor(rows, levels = row_id_order))
+  }
+
+  g = ggplot(data=dat_melt,
+             aes(x = rows,y=columns, fill = value)) +
+    geom_tile() +
+    theme(axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          legend.position = "right")+
+    labs(title = name,
+         x = xlab, y = ylab)
+
+  if(!discrete){
+    g = g +
+      scale_fill_gradient(high="red", low = "white")
+  }else{
+    g = g +
+      scale_fill_discrete(high="red", low = "white")
+  }
+  return(g)
+}
+
+
+
