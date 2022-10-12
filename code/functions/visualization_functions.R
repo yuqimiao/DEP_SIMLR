@@ -175,10 +175,10 @@ feature_heatmap = function(mat = matrix(rnorm(50000), nrow = 500),
 
   if(!discrete){
     g = g +
-      scale_fill_gradient(high="red", low = "white")
+      scale_fill_gradient(high="red", low = "black")
   }else{
     g = g +
-      scale_fill_discrete(high="red", low = "white")
+      scale_fill_discrete(high="red", low = "black")
   }
   return(g)
 }

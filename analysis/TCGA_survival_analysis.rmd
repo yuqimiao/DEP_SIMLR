@@ -557,7 +557,7 @@ sample_order = (tibble(sample_id = names(cluster_ls[[1]]),
 kirp_ge_ls = top_feat_data_tidy(feature_path = "/Volumes/sw2206/yuqi/data_20220308/kirp/cancer/kirp_ge_cancer.Rdata",
                                 common_sample_path = "/Volumes/sw2206/yuqi/data_20220308/common_sample.rds",
                                 feature_weight_path = "/Volumes/sw2206/yuqi/data_20220308/output/kirp_ge_cancer_w.rds",
-                                n_feat = 100)
+                                n_feat = 500)
 # plot
 mat_ge = kirp_ge_ls$data
 g_ge = feature_heatmap(mat = mat_ge,
@@ -571,7 +571,7 @@ g_ge = feature_heatmap(mat = mat_ge,
 kirp_me_ls = top_feat_data_tidy(feature_path = "/Volumes/sw2206/yuqi/data_20220308/kirp/cancer/kirp_me_cancer.Rdata",
                                 common_sample_path = "/Volumes/sw2206/yuqi/data_20220308/common_sample.rds",
                                 feature_weight_path = "/Volumes/sw2206/yuqi/data_20220308/output/kirp_me_cancer_w.rds",
-                                n_feat = 100)
+                                n_feat = 300)
 # plot
 mat_me = kirp_me_ls$data
 g_me = feature_heatmap(mat = mat_me,
