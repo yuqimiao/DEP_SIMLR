@@ -3,10 +3,10 @@ setwd("/ifs/scratch/msph/biostat/sw2206/yuqi")
 task_ID = as.integer(Sys.getenv("SGE_TASK_ID"))
 N= 1:8000
 task_id = N[task_ID]
-dir = "simu_220930_3"
+dir = "simu_221012_2"
 library(tidyverse)
 library(igraph)
-# simulation for 4 clusters, data 1 separates 1/2A/2B, data 2 separates 1A/1B/2 ----
+# simulation for 4 clusters, data 1 separates 12/3/4, data 2 separates 1/2/34, data 3 separates 1/2/3/4 but with vague division ----
 # output
 # data matrix with n_sub*n_feat
 
@@ -43,19 +43,42 @@ get_data_4clust = function(n_sub = 200,
 # heatmap_gg(data, "sim1") # heatmap_gg in visualization_functions.R
 # simulation par collection
 
-noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
+# noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
+truth = c(rep(1:2, each = 50), rep(3, 100))
+
+simu_tib =tibble(scenario = 1:4,
+                 n_feat1 = c(1000, 1000, 10000, 1000),
+                 n_feat2 = c(10000, 100000, 100000, 10000),
+                 n_feat3 = c(NA,NA,NA, 100000)) %>%
+  mutate(tib = map(scenario, function(s){
+    tibble(noise_sd = seq(1,5,0.25))
+  })) %>% unnest(tib) %>%
+  mutate(scenario = seq_along(scenario))
+
 
 ## simulate
-n_feat1 = 1000
-n_feat2 = 100000
+scenario_cur = (task_id-1)%/%100+1
+simu_tib_cur = simu_tib %>% filter(scenario == scenario_cur)
+n_feat1 = simu_tib_cur$n_feat1
+n_feat2 = simu_tib_cur$n_feat2
+n_feat3 = simu_tib_cur$n_feat3
+noise_sd = simu_tib_cur$noise_sd
+
 mu1 = c(0, 0, 1, -1)
 mu2 = c(1,-1,0,0)
-noise_sd = noise_sd_all[(task_id-1)%/%100+1]
+mu3 = c(1,2,3,4)
+
 
 data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
 data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
-
 data_list = list(data1, data2)
+
+if(!is.na(n_feat3)){
+  data3 = get_data_4clust(n_feat = n_feat2, mu_vec = mu3, noise_sd = noise_sd)
+  data_list = list(data1, data2, data3)
+}
+
+n_data = length(data_list)
 
 ## benchmark
 alpha = 1
@@ -81,7 +104,7 @@ res_snf = list(S = S_snf,
 res_cimlr = CIMLR_kernel(kernel_list, c = 4, k = k)
 
 # part_CIMLR
-res_part_cimlr = part_cimlr(kernel_list, k = k, neig_single = rep(3,2), c = 4)
+res_part_cimlr = part_cimlr(kernel_list, k = k, neig_single = rep(3,n_data), c = 4)
 Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
@@ -90,7 +113,7 @@ res_part_cimlr = list(S = Y %*% t(Y),
 res_part_cimlr_up = part_cimlr(kernel_list, k = k, c = 4, update_neig = T)
 Y = res_part_cimlr_up$Y
 res_part_cimlr_up = list(S = Y %*% t(Y),
-                      cluster = res_part_cimlr_up$cluster)
+                         cluster = res_part_cimlr_up$cluster)
 kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr, res_part_cimlr_up = res_part_cimlr_up)
 
 
@@ -105,16 +128,16 @@ res_snf = list(S = S_snf,
 res_cimlr = CIMLR_kernel(diff_kernel_list, c = 4, k = k)
 
 # part_CIMLR
-res_part_cimlr = part_cimlr(diff_kernel_list, k = k, neig_single = rep(3,2), c = 4)
+res_part_cimlr = part_cimlr(diff_kernel_list, k = k, neig_single = rep(3,n_data), c = 4)
 Y = res_part_cimlr$Y
 res_part_cimlr = list(S = Y %*% t(Y),
                       cluster = res_part_cimlr$cluster)
 
-# part_CIMLR with updated c
+# part_CIMLR with updated n_eig
 res_part_cimlr_up = part_cimlr(diff_kernel_list, k = k, c = 4, update_neig = T)
 Y = res_part_cimlr_up$Y
 res_part_cimlr_up = list(S = Y %*% t(Y),
-                      cluster = res_part_cimlr_up$cluster)
+                         cluster = res_part_cimlr_up$cluster)
 diff_kernel_res_list = list(res_snf = res_snf, res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr, res_part_cimlr_up = res_part_cimlr_up)
 
 # res_tib
@@ -126,5 +149,27 @@ res_tib = expand_grid(kernel = c("kernel", "diff_kernel"),
 save_tib = tibble(simu_id = task_id,
                   noise_sd = noise_sd,
                   res_tib = list(res_tib)
-                  )
+)
 saveRDS(save_tib, file = paste(dir, "/save_tib",task_id,".rds", sep = ""))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -240,7 +240,8 @@ diffusion_enhancement = function(kernel,
   # perform transformation
   if(diffusion_form == "L1") L = kernel %*% t(P)
   if(diffusion_form == "L2") L = kernel %*% t(P) %*% t(P)
-  if(diffusion_form == "L3") L = t(P) %*% kernel %*%  t(P)
+  if(diffusion_form == "L3") L = kernel %*% t(P) %*% t(P)
+  if(diffusion_form == "L4") L = t(P) %*% kernel %*%  t(P)
 
   # combine with the initial global K
   L = (L+t(L))/2

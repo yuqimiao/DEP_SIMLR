@@ -136,6 +136,16 @@ color_bar_cl = function(cluster_ls){
   return(g)
 }
 
+# input:
+# mat: mat to plot
+# column_id_order: order of column id, need to consistent with the column name
+# row_id_order: order of row id, need to consistent with the row name
+# discrete:  T/F whether the measure in the matrix is discreate
+# xlab
+# ylab
+# name: plot title
+# output: heatmap, an ggplot object
+
 feature_heatmap = function(mat = matrix(rnorm(50000), nrow = 500),
                            column_id_order = NA,
                            row_id_order = NA,
