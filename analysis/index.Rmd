@@ -27,9 +27,9 @@ Index:
 [TCGA_survival_analysis](TCGA_survival_analysis.html)
 
 ```{r}
-# wflow_publish(c("analysis/index.rmd",
-#                 "analysis/simulation_notebook.rmd"
-#                 ),"update")
+wflow_publish(c("analysis/index.rmd",
+                "analysis/simulation_notebook.rmd"
+                ),"update")
 
 # wflow_publish(c("analysis/index.rmd"),"update")
 # wflow_git_push()
