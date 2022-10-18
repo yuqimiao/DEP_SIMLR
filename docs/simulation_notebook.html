@@ -15,13 +15,22 @@
 
 <title>simulation_notebook</title>
 
-<script src="site_libs/header-attrs-2.1/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -29,7 +38,7 @@
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
-<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
 <style type="text/css">
 div.section {
@@ -39,12 +48,16 @@ div.section {
 
 
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -57,32 +70,8 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
+
 
 
 
@@ -92,10 +81,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -112,40 +97,16 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -173,7 +134,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -185,7 +146,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -195,11 +156,28 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.parent().addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -211,7 +189,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -337,7 +314,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -351,7 +328,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -377,7 +354,7 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
@@ -390,7 +367,9 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -399,7 +378,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -408,17 +389,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-10-13
+<strong>Last updated:</strong> 2022-10-17
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>DEP_SIMLR/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>DEP_SIMLR/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -427,91 +418,138 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20221003code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20221003)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20221003code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20221003)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20221003code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20221003code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20221003)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20221003)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtreedd2bda3c344500d22667b165ec028cfa6d610d1btargetblankdd2bda3a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/dd2bda3c344500d22667b165ec028cfa6d610d1b" target="_blank">dd2bda3</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree143138e17a15159c0c61856b766ad39e09a95c87targetblank143138ea">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/tree/143138e17a15159c0c61856b766ad39e09a95c87" target="_blank">143138e</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtreedd2bda3c344500d22667b165ec028cfa6d610d1btargetblankdd2bda3a" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree143138e17a15159c0c61856b766ad39e09a95c87targetblank143138ea"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/dd2bda3c344500d22667b165ec028cfa6d610d1b" target="_blank">dd2bda3</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/yuqimiao/DEP_SIMLR/tree/143138e17a15159c0c61856b766ad39e09a95c87" target="_blank">143138e</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -521,18 +559,20 @@ Ignored files:
     Ignored:    code/.DS_Store
 
 Untracked files:
-    Untracked:  analysis/docs/
-    Untracked:  code/simulation_scripts/
+    Untracked:  analysis/simulation_log.rmd
+    Untracked:  code/simulation_scripts/simu_221012_3.R
+    Untracked:  code/simulation_scripts/simu_221017_1.R
+    Untracked:  code/simulation_scripts/simu_221017_2.R
+    Untracked:  code/simulation_scripts/simu_221017_3.R
 
 Unstaged changes:
-    Modified:   code/functions/Partition_CIMLR_2.0.R
-    Modified:   code/functions/visualization_functions.R
-    Deleted:    code/simu_220930.R
-    Deleted:    code/simu_220930_analysis.R
+    Modified:   code/simulation_scripts/simu_221012_analysis.R
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -543,7 +583,12 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/simulation_notebook.rmd</code>) and HTML (<code>docs/simulation_notebook.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/simulation_notebook.rmd</code>)
+and HTML (<code>docs/simulation_notebook.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -567,6 +612,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/143138e17a15159c0c61856b766ad39e09a95c87/analysis/simulation_notebook.rmd" target="_blank">143138e</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-17
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/yuqimiao/DEP_SIMLR/fdf76789dc9e0fd29c8e0812009dc4d5b7fcb4a1/docs/simulation_notebook.html" target="_blank">fdf7678</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -778,92 +857,49 @@ update
 </div>
 </div>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-✓ tibble  3.1.3     ✓ dplyr   1.0.7
-✓ tidyr   1.1.3     ✓ stringr 1.4.0
-✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
-<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-x dplyr::filter() masks stats::filter()
-x dplyr::lag()    masks stats::lag()</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+✔ tibble  3.1.8      ✔ dplyr   1.0.10
+✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+✔ readr   2.1.3      ✔ forcats 0.5.2 
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code># need to connect to cluster</code></pre>
+<div id="basic-setting" class="section level2">
+<h2>Basic setting:</h2>
+<p>The setting is to have 4 clusters in total. Dataset 1 separates
+clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and
+(3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters,
+although 2 sets of three different clusters. Only when you use both
+datasets 1 and 2, you can detect 4 clusters. This way, the overlapping
+information of the 2 datasets are, clusters (1+2) from clusters (3+4).
+The unique information of dataset 1 is to separate cluster 1 and 2. The
+unique information of dataset 2 is to separate cluster 3 and 4.</p>
 </div>
-<div id="clusters" class="section level2">
-<h2>220930 4 clusters</h2>
-<p><strong>Basic setting: </strong></p>
-<p>The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and (3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters, although 2 sets of three different clusters. Only when you use both datasets 1 and 2, you can detect 4 clusters. This way, the overlapping information of the 2 datasets are, clusters (1+2) from clusters (3+4). The unique information of dataset 1 is to separate cluster 1 and 2. The unique information of dataset 2 is to separate cluster 3 and 4.</p>
-<p><strong>Parameters: </strong></p>
-<ul>
-<li>n_feat1 = 1000</li>
-<li>n_feat2 = 100000</li>
-<li>mu1 = c(0, 0, 1, -1)</li>
-<li>mu2 = c(1,-1,0,0)</li>
-</ul>
-<pre class="r"><code># data read in
-dir = &quot;/Volumes/sw2206/yuqi/simu_220930&quot;
-# files = list.files(dir)
-# tib_all = NULL
-# for(i in 1:length(files)){
-#   tib = readRDS(paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;))
-#   tib_all = rbind(tib_all, tib)
-# }
-# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
-tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
-
-tib_all %&gt;% unnest(res_tib) %&gt;% 
-  group_by(noise_sd, kernel, method) %&gt;% 
-  summarize(mean_nmi = mean(nmi),
-         sd_nmi = sd(nmi)) %&gt;% 
-  mutate(kernel = factor(kernel, levels = c(&quot;kernel&quot;, &quot;diff_kernel&quot;))) %&gt;% 
-  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line(aes(linetype=kernel, color = method))+
-  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
-  geom_point()</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;noise_sd&#39;, &#39;kernel&#39;. You can override using the `.groups` argument.</code></pre>
-<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>From above, we can see that the diffusion actually decrease the performance of part-cimlr when the noise is large. One potential improvement is to update the eigenvector used for single data partition information.</p>
 </div>
-<div id="extension-4-cluster" class="section level2">
-<h2>220930-extension 4 cluster</h2>
-<p>Here we extend the 4 cluster scenario in 220930 in terms of the following terms: 1. Trial of part-cimlr with the update_c, i.e, with only informative eigenvecros as partition information, to see if the performance of the diffusion version of part-cimlr is improving 2. Extend the noise_sd to see the overall performance: noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)</p>
-<pre class="r"><code># data read in
-dir = &quot;/Volumes/sw2206/yuqi/simu_220930_2&quot;
-# files = list.files(dir)
-# tib_all = NULL
-# for(i in 1:length(files)){
-#   tib = readRDS(paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;))
-#   tib_all = rbind(tib_all, tib)
-# }
-# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
-
-tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
-
-tib_all %&gt;% unnest(res_tib) %&gt;% 
-  group_by(noise_sd, kernel, method) %&gt;% 
-  summarize(mean_nmi = mean(nmi),
-         sd_nmi = sd(nmi)) %&gt;% 
-  mutate(kernel = factor(kernel, levels = c(&quot;kernel&quot;, &quot;diff_kernel&quot;))) %&gt;% 
-  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line(aes(linetype=kernel, color = method))+
-  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
-  geom_point()</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;noise_sd&#39;, &#39;kernel&#39;. You can override using the `.groups` argument.</code></pre>
-<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>From the simulation result, we can see that the performance of part_cimlr_up has a sharp drop when the noise_sd increase to 3.25 from 3. I start a new notebook <a href="choose_eigenvec_number.html">here</a> to illustrate the possible reasons and improvement. In a word, once we want to use eigenvector to represents the similarity matrix/GL matrix, we need to use eigengap to find the eigenvectors actually contains information.</p>
-<p>But when the information contained in the data is vague, the eigen gap is invalid. The max gap is occured randomly. Thus we need to further explore the eigenvectors to use as partition information. Currently reading Dataspectropy, Shi, 2009</p>
-</div>
-<div id="clusters-1" class="section level1">
-<h1>221012 4 clusters</h1>
-<p>From the simulation above, we see the effect of diffusion and partition cimlr. But how each strategy contributes is still a bit vague. In this simulation, we aim to verify our 2 assumption on the effect of 2 strategies:</p>
+<div id="noise_sd-4-clusters" class="section level1">
+<h1>221012 noise_sd 4 clusters</h1>
+<p>From the simulation above, we see the effect of diffusion and
+partition cimlr. But how each strategy contributes is still a bit vague.
+In this simulation, we aim to verify our 2 assumption on the effect of 2
+strategies:</p>
 <ol style="list-style-type: decimal">
-<li>Diffusion helps denoise on the single data level, capturing the larger, clearer structure</li>
-<li>Partition-level integration can help to handle the heterogeneity of dimensions in different data types</li>
+<li>Diffusion helps denoise on the single data level, capturing the
+larger, clearer structure</li>
+<li>Partition-level integration can help to handle the heterogeneity of
+dimensions in different data types</li>
 </ol>
 <div id="effect-of-diffusion" class="section level2">
 <h2>221012_1 effect of diffusion</h2>
+<p>In this simulation, we only look at the effect of diffusion on one
+data. The data separates 3 clusters, with cluster size as 50/50/100, the
+mean of feature vector is (-1,1,0,0), thus, the cluster 1 and 2 is
+closer to cluster 3&amp;4 separately, but cluster 1 and 2 are far
+apart.</p>
 <pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221012_1&quot;
 # files = list.files(dir)
 # tib_all = NULL
@@ -872,17 +908,115 @@ tib_all %&gt;% unnest(res_tib) %&gt;%
 #   tib_all = rbind(tib_all, tib)
 # }
 # saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+# mean_tib = tib_all %&gt;% 
+#   group_by(n_feat, noise_sd, kernel_type) %&gt;% 
+#   summarize(mean_nmi = mean(nmi)) 
+# 
+# saveRDS(mean_tib, paste(dir, &quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
 
-tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))</code></pre>
-<pre class="r"><code>tib_all %&gt;% 
-  group_by(n_feat, noise_sd, kernel_type) %&gt;% 
-  summarize(mean_nmi = mean(nmi)) %&gt;% 
+# tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))</code></pre>
+<pre class="r"><code>mean_tib = readRDS(paste(dir, &quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
+mean_tib %&gt;% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = kernel_type, group = kernel_type))+
   geom_line()+
   geom_point()+
   facet_grid(n_feat~.)</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;n_feat&#39;, &#39;noise_sd&#39;. You can override using the `.groups` argument.</code></pre>
-<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/afcd9e821ceb877995b72f804d98c0fc246a1372/docs/figure/simulation_notebook.rmd/unnamed-chunk-3-1.png" target="_blank">afcd9e8</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="effect-of-partition-level-integration-for-2-data"
+class="section level2">
+<h2>221012_2 effect of partition-level integration for 2 data</h2>
+<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221012_2&quot;
+# dir = &quot;simu_221012_2&quot;
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;)
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur) %&gt;% unnest(res_tib) %&gt;% dplyr::select(-res_list)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste(&quot;file&quot;,file_cur,&quot;does not exist!!!!!&quot;))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+
+# tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+
+# simu_tib = simu_tib =tibble(scenario = 1:4,
+#                  n_feat1 = c(1000, 1000, 10000, 1000),
+#                  n_feat2 = c(10000, 100000, 100000, 10000),
+#                  n_feat3 = c(NA,NA,NA, 100000)) %&gt;%
+#   mutate(tib = map(scenario, function(s){
+#     tibble(noise_sd = seq(1,5,0.25))
+#   })) %&gt;% unnest(tib) %&gt;%
+#   mutate(scenario = seq_along(scenario))
+# 
+# 
+# mean_tib = tib_all %&gt;% 
+#   mutate(simu_id = (simu_id-1)%/%100+1) %&gt;% 
+#   left_join(simu_tib, by = c(&quot;simu_id&quot; = &quot;scenario&quot;)) %&gt;% 
+#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %&gt;% 
+#   dplyr::select(-noise_sd.y, -kernel) %&gt;% 
+#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %&gt;% 
+#   summarize(mean_nmi = mean(nmi)) %&gt;% 
+#   mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = &quot;-&quot;), paste(n_feat1, n_feat2, n_feat3, sep = &quot;-&quot;)))
+# 
+# saveRDS(mean_tib, paste(dir, &quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
+
+mean_tib = readRDS(paste(dir, &quot;/mean_tib.rds&quot;, sep = &quot;&quot;))</code></pre>
+<ul>
+<li>First we see the ability of part-cimlr to handle the dimension
+heterogeneity. In this case, data 1 separates 12/3/4, data 2 separates
+1/2/34 and we change the dimension of the 2 data types.</li>
+</ul>
+<p>mu1 = c(0, 0, 1, -1) mu2 = c(1,-1,0,0)</p>
+<p>2 data integration, with increasing noise sd</p>
+<pre class="r"><code>mean_tib %&gt;% 
+  filter(comb!=&quot;1000-10000-1e+05&quot;) %&gt;% 
+  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
+  geom_line(aes(linetype=kernel_type, color = method))+
+  geom_point()+
+  facet_wrap(~comb, nrow = 1)</code></pre>
+<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
 Past versions of unnamed-chunk-5-1.png
@@ -920,11 +1054,15 @@ yuqimiao
 </table>
 </div>
 </div>
+<p>From the result, we can clearly see the effect of partition cimlr to
+improve the clsutering accuracy especially when the dimension of data
+types are vastly different(1k-100k)</p>
 </div>
-<div id="effect-of-partition-level" class="section level2">
-<h2>221012_2 effect of partition-level</h2>
-<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221012_2&quot;
-# dir = &quot;simu_221012_2&quot;
+<div id="effect-of-partition-level-integration-for-3-data"
+class="section level2">
+<h2>221012_3 effect of partition-level integration for 3 data</h2>
+<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221012_3&quot;
+# dir = &quot;simu_221012_3&quot;
 # files = list.files(dir)
 # tib_all = NULL
 # for(i in 1:length(files)){
@@ -939,80 +1077,88 @@ yuqimiao
 # }
 # saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
 
-tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))</code></pre>
-<pre class="r"><code>simu_tib = simu_tib =tibble(scenario = 1:4,
-                 n_feat1 = c(1000, 1000, 10000, 1000),
-                 n_feat2 = c(10000, 100000, 100000, 10000),
-                 n_feat3 = c(NA,NA,NA, 100000)) %&gt;%
-  mutate(tib = map(scenario, function(s){
-    tibble(noise_sd = seq(1,5,0.25))
-  })) %&gt;% unnest(tib) %&gt;%
-  mutate(scenario = seq_along(scenario))
+# tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+# 
+# 
+# simu_tib = simu_tib =tibble(scenario = 1:4,
+#                  n_feat1 = c(1000, 1000, 10000, 1000),
+#                  n_feat2 = c(10000, 100000, 100000, 10000),
+#                  n_feat3 = c(NA,NA,NA, 100000)) %&gt;%
+#   mutate(tib = map(scenario, function(s){
+#     tibble(noise_sd = seq(1,5,0.25))
+#   })) %&gt;% unnest(tib) %&gt;%
+#   mutate(scenario = seq_along(scenario))
+# 
+# 
+# mean_tib = tib_all %&gt;% 
+#   mutate(simu_id = (simu_id-1)%/%100+1) %&gt;% 
+#   left_join(simu_tib, by = c(&quot;simu_id&quot; = &quot;scenario&quot;)) %&gt;% 
+#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %&gt;% 
+#   dplyr::select(-noise_sd.y, -kernel) %&gt;% 
+#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %&gt;% 
+#   summarize(mean_nmi = mean(nmi)) %&gt;% 
+#   mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = &quot;-&quot;), paste(n_feat1, n_feat2, n_feat3, sep = &quot;-&quot;)))
+# 
+# saveRDS(mean_tib, paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
 
-
-mean_tib = tib_all %&gt;% 
-  mutate(simu_id = (simu_id-1)%/%100+1) %&gt;% 
-  left_join(simu_tib, by = c(&quot;simu_id&quot; = &quot;scenario&quot;)) %&gt;% 
-  mutate(noise_sd = noise_sd.x, kernel_type = kernel) %&gt;% 
-  dplyr::select(-noise_sd.y, -kernel) %&gt;% 
-  group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %&gt;% 
-  summarize(mean_nmi = mean(nmi)) %&gt;% 
-  mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = &quot;-&quot;), paste(n_feat1, n_feat2, n_feat3, sep = &quot;-&quot;)))</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;n_feat1&#39;, &#39;n_feat2&#39;, &#39;n_feat3&#39;, &#39;noise_sd&#39;, &#39;kernel_type&#39;. You can override using the `.groups` argument.</code></pre>
-<p>2 data integration, with increasing noise sd</p>
-<pre class="r"><code>mean_tib %&gt;% 
-  filter(comb!=&quot;1000-10000-1e+05&quot;) %&gt;% 
-  filter(method!=&quot;part_cimlr_up&quot;) %&gt;% 
-  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line(aes(linetype=kernel_type, color = method))+
-  geom_point()+
-  facet_wrap(~comb, nrow = 1)</code></pre>
-<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
-Past versions of unnamed-chunk-8-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-8-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/80f77ea9f056be3885b7b553d1357e010bf2e1f5/docs/figure/simulation_notebook.rmd/unnamed-chunk-8-1.png" target="_blank">80f77ea</a>
-</td>
-<td>
-yuqimiao
-</td>
-<td>
-2022-10-12
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+mean_tib = readRDS(paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))</code></pre>
+<p>Then we increase the number of data types. Still, we have data 1
+separates 12/3/4, data 2 separates 1/2/34, but the data 3 is separating
+the 4 clusters 1/2/3/4, but with a vague separation.</p>
+<p>mu3 = c(1,2,3,4)</p>
 <p>2 data integration v.s. 3 data integration</p>
 <pre class="r"><code>mean_tib %&gt;% 
-  filter(comb %in% c(&quot;1000-10000&quot;,&quot;1000-10000-1e+05&quot;)) %&gt;% 
   filter(method!=&quot;part_cimlr_up&quot;) %&gt;%
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
   geom_line(aes(linetype=kernel_type, color = method))+
   geom_point()+
   facet_wrap(~comb, nrow = 1)</code></pre>
+<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>In this result, we let the dimension of each single data type
+partition information to be 3,3,4, which is exactly the number of
+clusters in each data type. this potentially has a problems: We give
+extra information since we know the truth in the simulation, but this
+choice will influence the performance of part-cimlr greatly</p>
+</div>
+</div>
+<div id="s2n-4-clusters" class="section level1">
+<h1>221017 s2n 4 clusters</h1>
+<p>In this simulation, we increase the number of noise feature numbers
+with constant noise feature sd. Specifically, given number of features
+in total, we gradually change the signal-noise ratio. So all the above
+scenarios of 221012 is replicated with the signal to noise ratio
+changing instead of the signal sd changing.</p>
+<div id="effect-of-diffusion-1" class="section level2">
+<h2>221017_1 effect of diffusion</h2>
+<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221017_1&quot;
+# dir = &quot;simu_221017_1&quot;
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;)
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur) 
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste(&quot;file&quot;,file_cur,&quot;does not exist!!!!!&quot;))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+
+# tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+# mean_tib = tib_all %&gt;% 
+#   group_by(n_feat, s2n, kernel_type, metric) %&gt;% 
+#   summarize(mean = mean(value))
+# saveRDS(mean_tib, paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
+
+mean_tib = readRDS(paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))</code></pre>
+<pre class="r"><code> mean_tib %&gt;% 
+  filter(metric!=&quot;silhouette&quot;) %&gt;% 
+  ggplot(aes(x = s2n, y = mean, color = kernel_type, group = kernel_type))+
+  geom_line()+
+  geom_point()+
+  facet_grid(metric~n_feat)</code></pre>
 <p><img src="figure/simulation_notebook.rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
@@ -1051,21 +1197,119 @@ yuqimiao
 </table>
 </div>
 </div>
+</div>
+<div id="effect-of-partition-level-integration-for-2-data-1"
+class="section level2">
+<h2>221017_2 effect of partition-level integration for 2 data</h2>
+<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221017_2&quot;
+# dir = &quot;simu_221017_2&quot;
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;)
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste(&quot;file&quot;,file_cur,&quot;does not exist!!!!!&quot;))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+
+tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+mean_tib = tib_all %&gt;% 
+  filter(metric != &quot;silhouette&quot;) %&gt;% 
+  group_by(n_feat1,n_feat2, s2n, kernel, method, metric) %&gt;% 
+  summarize(mean = mean(value)) %&gt;% 
+  mutate(comb = paste(n_feat1, n_feat2, sep = &quot;-&quot;))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;n_feat1&#39;, &#39;n_feat2&#39;, &#39;s2n&#39;, &#39;kernel&#39;,
+&#39;method&#39;. You can override using the `.groups` argument.</code></pre>
+<pre class="r"><code># saveRDS(mean_tib, paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
+
+mean_tib = readRDS(paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))</code></pre>
+<p>2 data integration, with increasing noise sd</p>
+<pre class="r"><code>mean_tib %&gt;% 
+  filter(method!=&quot;part_cimlr_up&quot;) %&gt;% 
+  ggplot(aes(x = s2n, y = mean, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  geom_point()+
+  facet_grid(metric~comb)</code></pre>
+<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-11-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="effect-of-partition-level-integration-for-3-data-1"
+class="section level2">
+<h2>221012_3 effect of partition-level integration for 3 data</h2>
+<pre class="r"><code>dir = &quot;/Volumes/sw2206/yuqi/simu_221017_3&quot;
+# dir = &quot;simu_221017_3&quot;
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,&quot;/&quot;, files[i], sep = &quot;&quot;)
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste(&quot;file&quot;,file_cur,&quot;does not exist!!!!!&quot;))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+
+tib_all = readRDS(paste(dir, &quot;/all_data.rds&quot;, sep = &quot;&quot;))
+mean_tib = tib_all %&gt;% 
+  filter(metric != &quot;silhouette&quot;) %&gt;% 
+  filter(method!=&quot;part_cimlr_up&quot;) %&gt;% 
+  group_by(n_feat1,n_feat2, n_feat3, s2n, kernel, method, metric) %&gt;% 
+  summarize(mean = mean(value)) %&gt;% 
+  mutate(comb = pmap_chr(list(n1 = n_feat1,n2 = n_feat2,n3 = n_feat3), function(n1,n2,n3){
+    vec = c(n1,n2,n3)
+    vec = vec[!is.na(vec)]
+    paste(vec, collapse = &quot;-&quot;)
+  }))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;n_feat1&#39;, &#39;n_feat2&#39;, &#39;n_feat3&#39;, &#39;s2n&#39;,
+&#39;kernel&#39;, &#39;method&#39;. You can override using the `.groups` argument.</code></pre>
+<pre class="r"><code># saveRDS(mean_tib, paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))
+
+mean_tib = readRDS(paste(dir,&quot;/mean_tib.rds&quot;, sep = &quot;&quot;))</code></pre>
+<pre class="r"><code>mean_tib %&gt;% 
+  filter(method!=&quot;part_cimlr_up&quot;) %&gt;% 
+  ggplot(aes(x = s2n, y = mean, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  geom_point()+
+  facet_grid(metric~comb)</code></pre>
+<p><img src="figure/simulation_notebook.rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Cluster index clarification:</p>
+<ul>
+<li>Internal:
+<ul>
+<li>The Average Silhouette Width (ASW) of a clustering is ̄ a ( i ) is
+the average distance of to points in the cluster to which it was
+assigned, and is the average distance of to the points in the nearest
+cluster to which it was not assigned.</li>
+</ul></li>
+<li>External:
+<ul>
+<li>nmi</li>
+<li>Adjusted rand index</li>
+</ul></li>
+</ul>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.2 (2019-12-12)
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
-Running under: macOS  10.16
+<pre><code>R version 4.2.1 (2022-06-23)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur ... 10.16
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1074,26 +1318,35 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.7     purrr_0.3.4    
- [5] readr_1.3.1     tidyr_1.1.3     tibble_3.1.3    ggplot2_3.3.5  
- [9] tidyverse_1.3.0 workflowr_1.6.2
+ [1] forcats_0.5.2   stringr_1.4.1   dplyr_1.0.10    purrr_0.3.4    
+ [5] readr_2.1.3     tidyr_1.2.1     tibble_3.1.8    ggplot2_3.3.6  
+ [9] tidyverse_1.3.2 workflowr_1.7.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.8.3      lubridate_1.7.8   assertthat_0.2.1  rprojroot_2.0.2  
- [5] digest_0.6.27     utf8_1.2.2        R6_2.5.0          cellranger_1.1.0 
- [9] backports_1.2.1   reprex_0.3.0      evaluate_0.14     httr_1.4.2       
-[13] highr_0.8         pillar_1.6.2      rlang_0.4.11      readxl_1.3.1     
-[17] rstudioapi_0.13   whisker_0.4       rmarkdown_2.1     labeling_0.4.2   
-[21] munsell_0.5.0     broom_0.7.6       compiler_3.6.2    httpuv_1.5.5     
-[25] modelr_0.1.6      xfun_0.22         pkgconfig_2.0.3   htmltools_0.5.1.1
-[29] tidyselect_1.1.1  fansi_0.5.0       crayon_1.4.1      dbplyr_1.4.2     
-[33] withr_2.4.2       later_1.1.0.1     grid_3.6.2        jsonlite_1.7.2   
-[37] gtable_0.3.0      lifecycle_1.0.0   DBI_1.1.0         git2r_0.26.1     
-[41] magrittr_2.0.1    scales_1.1.1      cli_3.0.1         stringi_1.5.3    
-[45] farver_2.1.0      fs_1.5.0          promises_1.2.0.1  xml2_1.3.2       
-[49] ellipsis_0.3.2    generics_0.1.0    vctrs_0.3.8       tools_3.6.2      
-[53] glue_1.4.2        hms_1.1.0         yaml_2.2.1        colorspace_2.0-2 
-[57] rvest_0.3.5       knitr_1.32        haven_2.3.1      </code></pre>
+ [1] Rcpp_1.0.9          lubridate_1.8.0     getPass_0.2-2      
+ [4] ps_1.7.1            assertthat_0.2.1    rprojroot_2.0.3    
+ [7] digest_0.6.29       utf8_1.2.2          R6_2.5.1           
+[10] cellranger_1.1.0    backports_1.4.1     reprex_2.0.2       
+[13] evaluate_0.16       highr_0.9           httr_1.4.4         
+[16] pillar_1.8.1        rlang_1.0.6         readxl_1.4.1       
+[19] googlesheets4_1.0.1 rstudioapi_0.14     whisker_0.4        
+[22] callr_3.7.2         jquerylib_0.1.4     rmarkdown_2.16     
+[25] labeling_0.4.2      googledrive_2.0.0   munsell_0.5.0      
+[28] broom_1.0.1         compiler_4.2.1      httpuv_1.6.6       
+[31] modelr_0.1.9        xfun_0.33           pkgconfig_2.0.3    
+[34] htmltools_0.5.3     tidyselect_1.1.2    fansi_1.0.3        
+[37] crayon_1.5.2        withr_2.5.0         tzdb_0.3.0         
+[40] dbplyr_2.2.1        later_1.3.0         grid_4.2.1         
+[43] jsonlite_1.8.2      gtable_0.3.1        lifecycle_1.0.2    
+[46] DBI_1.1.3           git2r_0.30.1        magrittr_2.0.3     
+[49] scales_1.2.1        cli_3.4.1           stringi_1.7.8      
+[52] cachem_1.0.6        farver_2.1.1        fs_1.5.2           
+[55] promises_1.2.0.1    xml2_1.3.3          bslib_0.4.0        
+[58] ellipsis_0.3.2      generics_0.1.3      vctrs_0.4.2        
+[61] tools_4.2.1         glue_1.6.2          hms_1.1.2          
+[64] processx_3.7.0      fastmap_1.1.0       yaml_2.3.5         
+[67] colorspace_2.0-3    gargle_1.2.1        rvest_1.0.3        
+[70] knitr_1.40          haven_2.5.1         sass_0.4.2         </code></pre>
 </div>
 </div>
 </div>
@@ -1101,7 +1354,7 @@ loaded via a namespace (and not attached):
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
-http://docs.mathjax.org/en/latest/configuration.html.  This will make
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
 the presentation more consistent at the cost of the webpage sometimes
 taking slightly longer to load. Note that this only works because the
 footer is added to webpages before the MathJax javascript. -->
@@ -1123,7 +1376,7 @@ footer is added to webpages before the MathJax javascript. -->
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -1141,7 +1394,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -1150,6 +1403,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
@@ -1162,7 +1418,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
