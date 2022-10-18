@@ -7,86 +7,20 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Introduction
+# Introduction
 
 ```{r}
 library(tidyverse)
 # need to connect to cluster
 ```
 
-## 220930 4 clusters
 
-**Basic setting: **
+## Basic setting:
 
 The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and (3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters, although 2 sets of three different clusters. Only when you use both datasets 1 and 2, you can detect 4 clusters. This way, the overlapping information of the 2 datasets are, clusters (1+2) from clusters (3+4). The unique information of dataset 1 is to separate cluster 1 and 2. The unique information of dataset 2 is to separate cluster 3 and 4.
 
-**Parameters: **
 
-* n_feat1 = 1000
-* n_feat2 = 100000
-* mu1 = c(0, 0, 1, -1)
-* mu2 = c(1,-1,0,0)
-
-```{r}
-# data read in
-dir = "/Volumes/sw2206/yuqi/simu_220930"
-# files = list.files(dir)
-# tib_all = NULL
-# for(i in 1:length(files)){
-#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
-#   tib_all = rbind(tib_all, tib)
-# }
-# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
-tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
-
-tib_all %>% unnest(res_tib) %>% 
-  group_by(noise_sd, kernel, method) %>% 
-  summarize(mean_nmi = mean(nmi),
-         sd_nmi = sd(nmi)) %>% 
-  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
-  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line(aes(linetype=kernel, color = method))+
-  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
-  geom_point()
-```
-
-From above, we can see that the diffusion actually decrease the performance of part-cimlr when the noise is large. One potential improvement is to update the eigenvector used for single data partition information. 
-
-## 220930-extension 4 cluster
-
-Here we extend the 4 cluster scenario in 220930 in terms of the following terms:
-1. Trial of part-cimlr with the update_c, i.e, with only informative eigenvecros as partition information, to see if the performance of the diffusion version of part-cimlr is improving
-2. Extend the noise_sd to see the overall performance: noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
-
-```{r}
-# data read in
-dir = "/Volumes/sw2206/yuqi/simu_220930_2"
-# files = list.files(dir)
-# tib_all = NULL
-# for(i in 1:length(files)){
-#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
-#   tib_all = rbind(tib_all, tib)
-# }
-# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
-
-tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
-
-tib_all %>% unnest(res_tib) %>% 
-  group_by(noise_sd, kernel, method) %>% 
-  summarize(mean_nmi = mean(nmi),
-         sd_nmi = sd(nmi)) %>% 
-  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
-  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
-  geom_line(aes(linetype=kernel, color = method))+
-  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
-  geom_point()
-```
-
-From the simulation result, we can see that the performance of part_cimlr_up has a sharp drop when the noise_sd increase to 3.25 from 3. I start a new notebook [here](choose_eigenvec_number.html) to illustrate the possible reasons and improvement. In a word, once we want to use eigenvector to represents the similarity matrix/GL matrix, we need to use eigengap to find the eigenvectors actually contains information. 
-
-But when the information contained in the data is vague, the eigen gap is invalid. The max gap is occured randomly. Thus we need to further explore the eigenvectors to use as partition information. Currently reading Dataspectropy, Shi, 2009
-
-# 221012 4 clusters
+# 221012 noise_sd 4 clusters
 
 From the simulation above, we see the effect of diffusion and partition cimlr. But how each strategy contributes is still a bit vague. In this simulation, we aim to verify our 2 assumption on the effect of 2 strategies:
 
@@ -94,6 +28,9 @@ From the simulation above, we see the effect of diffusion and partition cimlr. B
 2. Partition-level integration can help to handle the heterogeneity of dimensions in different data types
 
 ## 221012_1 effect of diffusion
+
+In this simulation, we only look at the effect of diffusion on one data. The data separates 3 clusters, with cluster size as 50/50/100, the mean of feature vector is (-1,1,0,0), thus, the cluster 1 and 2 is closer to cluster 3&4 separately, but cluster 1 and 2 are far apart.
+
 
 ```{r}
 dir = "/Volumes/sw2206/yuqi/simu_221012_1"
@@ -104,14 +41,18 @@ dir = "/Volumes/sw2206/yuqi/simu_221012_1"
 #   tib_all = rbind(tib_all, tib)
 # }
 # saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+# mean_tib = tib_all %>% 
+#   group_by(n_feat, noise_sd, kernel_type) %>% 
+#   summarize(mean_nmi = mean(nmi)) 
+# 
+# saveRDS(mean_tib, paste(dir, "/mean_tib.rds", sep = ""))
 
-tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+# tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
 ```
 
 ```{r}
-tib_all %>% 
-  group_by(n_feat, noise_sd, kernel_type) %>% 
-  summarize(mean_nmi = mean(nmi)) %>% 
+mean_tib = readRDS(paste(dir, "/mean_tib.rds", sep = ""))
+mean_tib %>% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = kernel_type, group = kernel_type))+
   geom_line()+
   geom_point()+
@@ -119,7 +60,8 @@ tib_all %>%
 ```
 
 
-## 221012_2 effect of partition-level 
+## 221012_2 effect of partition-level integration for 2 data
+
 
 ```{r}
 dir = "/Volumes/sw2206/yuqi/simu_221012_2"
@@ -138,45 +80,106 @@ dir = "/Volumes/sw2206/yuqi/simu_221012_2"
 # }
 # saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
 
-tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+# tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+
+# simu_tib = simu_tib =tibble(scenario = 1:4,
+#                  n_feat1 = c(1000, 1000, 10000, 1000),
+#                  n_feat2 = c(10000, 100000, 100000, 10000),
+#                  n_feat3 = c(NA,NA,NA, 100000)) %>%
+#   mutate(tib = map(scenario, function(s){
+#     tibble(noise_sd = seq(1,5,0.25))
+#   })) %>% unnest(tib) %>%
+#   mutate(scenario = seq_along(scenario))
+# 
+# 
+# mean_tib = tib_all %>% 
+#   mutate(simu_id = (simu_id-1)%/%100+1) %>% 
+#   left_join(simu_tib, by = c("simu_id" = "scenario")) %>% 
+#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %>% 
+#   dplyr::select(-noise_sd.y, -kernel) %>% 
+#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %>% 
+#   summarize(mean_nmi = mean(nmi)) %>% 
+#   mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = "-"), paste(n_feat1, n_feat2, n_feat3, sep = "-")))
+# 
+# saveRDS(mean_tib, paste(dir, "/mean_tib.rds", sep = ""))
+
+mean_tib = readRDS(paste(dir, "/mean_tib.rds", sep = ""))
 ```
 
-```{r}
-simu_tib = simu_tib =tibble(scenario = 1:4,
-                 n_feat1 = c(1000, 1000, 10000, 1000),
-                 n_feat2 = c(10000, 100000, 100000, 10000),
-                 n_feat3 = c(NA,NA,NA, 100000)) %>%
-  mutate(tib = map(scenario, function(s){
-    tibble(noise_sd = seq(1,5,0.25))
-  })) %>% unnest(tib) %>%
-  mutate(scenario = seq_along(scenario))
+* First we see the ability of part-cimlr to handle the dimension heterogeneity. In this case, data 1 separates 12/3/4, data 2 separates 1/2/34 and we change the dimension of the 2 data types.
 
+mu1 = c(0, 0, 1, -1)
+mu2 = c(1,-1,0,0)
 
-mean_tib = tib_all %>% 
-  mutate(simu_id = (simu_id-1)%/%100+1) %>% 
-  left_join(simu_tib, by = c("simu_id" = "scenario")) %>% 
-  mutate(noise_sd = noise_sd.x, kernel_type = kernel) %>% 
-  dplyr::select(-noise_sd.y, -kernel) %>% 
-  group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %>% 
-  summarize(mean_nmi = mean(nmi)) %>% 
-  mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = "-"), paste(n_feat1, n_feat2, n_feat3, sep = "-")))
-```
 
 2 data integration, with increasing noise sd
-```{r}
+```{r,fig.width=8, fig.height=6}
 mean_tib %>% 
   filter(comb!="1000-10000-1e+05") %>% 
-  filter(method!="part_cimlr_up") %>% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
   geom_line(aes(linetype=kernel_type, color = method))+
   geom_point()+
   facet_wrap(~comb, nrow = 1)
 ```
 
-2 data integration v.s. 3 data integration
+From the result, we can clearly see the effect of partition cimlr to improve the clsutering accuracy especially when the dimension of data types are vastly different(1k-100k)
+
+
+
+## 221012_3 effect of partition-level integration for 3 data
+
 ```{r}
+dir = "/Volumes/sw2206/yuqi/simu_221012_3"
+# dir = "simu_221012_3"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,"/", files[i], sep = "")
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur) %>% unnest(res_tib) %>% dplyr::select(-res_list)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste("file",file_cur,"does not exist!!!!!"))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+# tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+# 
+# 
+# simu_tib = simu_tib =tibble(scenario = 1:4,
+#                  n_feat1 = c(1000, 1000, 10000, 1000),
+#                  n_feat2 = c(10000, 100000, 100000, 10000),
+#                  n_feat3 = c(NA,NA,NA, 100000)) %>%
+#   mutate(tib = map(scenario, function(s){
+#     tibble(noise_sd = seq(1,5,0.25))
+#   })) %>% unnest(tib) %>%
+#   mutate(scenario = seq_along(scenario))
+# 
+# 
+# mean_tib = tib_all %>% 
+#   mutate(simu_id = (simu_id-1)%/%100+1) %>% 
+#   left_join(simu_tib, by = c("simu_id" = "scenario")) %>% 
+#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %>% 
+#   dplyr::select(-noise_sd.y, -kernel) %>% 
+#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %>% 
+#   summarize(mean_nmi = mean(nmi)) %>% 
+#   mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = "-"), paste(n_feat1, n_feat2, n_feat3, sep = "-")))
+# 
+# saveRDS(mean_tib, paste(dir,"/mean_tib.rds", sep = ""))
+
+mean_tib = readRDS(paste(dir,"/mean_tib.rds", sep = ""))
+```
+
+Then we increase the number of data types. Still, we have data 1 separates 12/3/4, data 2 separates 1/2/34, but the data 3 is separating the 4 clusters 1/2/3/4, but with a vague separation. 
+
+mu3 = c(1,2,3,4)
+
+
+2 data integration v.s. 3 data integration
+```{r,fig.width=8, fig.height=6}
 mean_tib %>% 
-  filter(comb %in% c("1000-10000","1000-10000-1e+05")) %>% 
   filter(method!="part_cimlr_up") %>%
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
   geom_line(aes(linetype=kernel_type, color = method))+
@@ -184,5 +187,145 @@ mean_tib %>%
   facet_wrap(~comb, nrow = 1)
 ```
 
+In this result, we let the dimension of each single data type partition information to be 3,3,4, which is exactly the number of clusters in each data type. this potentially has a problems: We give extra information since we know the truth in the simulation, but this choice will influence the performance of part-cimlr greatly
+
+# 221017 s2n 4 clusters 
+
+In this simulation, we increase the number of noise feature numbers with constant noise feature sd. Specifically, given number of features in total, we gradually change the signal-noise ratio. So all the above scenarios of 221012 is replicated with the signal to noise ratio changing instead of the signal sd changing.
 
 
+## 221017_1 effect of diffusion
+
+```{r}
+dir = "/Volumes/sw2206/yuqi/simu_221017_1"
+# dir = "simu_221017_1"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,"/", files[i], sep = "")
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur) 
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste("file",file_cur,"does not exist!!!!!"))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+# tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+# mean_tib = tib_all %>% 
+#   group_by(n_feat, s2n, kernel_type, metric) %>% 
+#   summarize(mean = mean(value))
+# saveRDS(mean_tib, paste(dir,"/mean_tib.rds", sep = ""))
+
+mean_tib = readRDS(paste(dir,"/mean_tib.rds", sep = ""))
+```
+
+```{r}
+ mean_tib %>% 
+  filter(metric!="silhouette") %>% 
+  ggplot(aes(x = s2n, y = mean, color = kernel_type, group = kernel_type))+
+  geom_line()+
+  geom_point()+
+  facet_grid(metric~n_feat)
+```
+
+
+## 221017_2 effect of partition-level integration for 2 data
+
+```{r}
+dir = "/Volumes/sw2206/yuqi/simu_221017_2"
+# dir = "simu_221017_2"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,"/", files[i], sep = "")
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste("file",file_cur,"does not exist!!!!!"))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+mean_tib = tib_all %>% 
+  filter(metric != "silhouette") %>% 
+  group_by(n_feat1,n_feat2, s2n, kernel, method, metric) %>% 
+  summarize(mean = mean(value)) %>% 
+  mutate(comb = paste(n_feat1, n_feat2, sep = "-"))
+
+# saveRDS(mean_tib, paste(dir,"/mean_tib.rds", sep = ""))
+
+mean_tib = readRDS(paste(dir,"/mean_tib.rds", sep = ""))
+```
+
+
+2 data integration, with increasing noise sd
+```{r,fig.width=8, fig.height=6}
+mean_tib %>% 
+  filter(method!="part_cimlr_up") %>% 
+  ggplot(aes(x = s2n, y = mean, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  geom_point()+
+  facet_grid(metric~comb)
+```
+
+   
+## 221012_3 effect of partition-level integration for 3 data
+
+```{r}
+dir = "/Volumes/sw2206/yuqi/simu_221017_3"
+# dir = "simu_221017_3"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   file_cur = paste(dir,"/", files[i], sep = "")
+#   if(file.exists(file_cur)){
+#     tib = readRDS(file_cur)
+#     tib_all = rbind(tib_all, tib)
+#     print(i)
+#   }else{
+#     print(paste("file",file_cur,"does not exist!!!!!"))
+#   }
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+mean_tib = tib_all %>% 
+  filter(metric != "silhouette") %>% 
+  filter(method!="part_cimlr_up") %>% 
+  group_by(n_feat1,n_feat2, n_feat3, s2n, kernel, method, metric) %>% 
+  summarize(mean = mean(value)) %>% 
+  mutate(comb = pmap_chr(list(n1 = n_feat1,n2 = n_feat2,n3 = n_feat3), function(n1,n2,n3){
+    vec = c(n1,n2,n3)
+    vec = vec[!is.na(vec)]
+    paste(vec, collapse = "-")
+  }))
+
+# saveRDS(mean_tib, paste(dir,"/mean_tib.rds", sep = ""))
+
+mean_tib = readRDS(paste(dir,"/mean_tib.rds", sep = ""))
+```
+
+
+```{r}
+mean_tib %>% 
+  filter(method!="part_cimlr_up") %>% 
+  ggplot(aes(x = s2n, y = mean, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  geom_point()+
+  facet_grid(metric~comb)
+```
+
+Cluster index clarification:
+
+* Internal:
+  * The Average Silhouette Width (ASW) of a clustering is ̄ a ( i ) is the average distance of to points in the cluster to which it was assigned, and is the average distance of to the points in the nearest cluster to which it was not assigned.
+  
+* External:
+   * nmi
+   * Adjusted rand index
