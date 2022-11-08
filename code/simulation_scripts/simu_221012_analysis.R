@@ -1,5 +1,6 @@
 library(tidyverse)
 library(igraph)
+library(patchwork)
 # simulation for 4 clusters separates 1/2/34 ----
 # output
 # data matrix with n_sub*n_feat
@@ -52,6 +53,16 @@ cluster_diff_kernel = spectralClustering(diff_kernel,3)
 compare(cluster_kernel, truth, "nmi")
 compare(cluster_diff_kernel, truth, "nmi")
 
+################################################
+source("code/functions/visualization_functions.R")
+
+g1 = heatmap_gg(kernel, "Data type 1, kernel")
+g2 = heatmap_gg(diff_kernel, "Data type 1, diffused kernel")
+g1|g2
+ggsave("docs/Extracted_plots/diff_denoise.png")
+
+################################################
+
 # case 2, reduce noise ----
 data = get_data_4clust(mu_vec = c(-1,1,0,0),
                        noise_sd = 0.5)
@@ -87,7 +98,7 @@ compare(cluster_diff_kernel, truth, "nmi")
 
 
 
-# explore the data effect size ----
+# explore the data 3 blur effect size ----
 source("code/functions/visualization_functions.R")
 data = get_data_4clust(mu_vec = c(1,2,3,4),
                        noise_sd = 1)
@@ -114,3 +125,89 @@ cluster_diff_kernel = spectralClustering(diff_kernel,4)
 compare(cluster_kernel, truth, "nmi")
 compare(cluster_diff_kernel, truth, "nmi")
 
+# explore the eigenspace of the part-cimlr output ----
+
+library(tidyverse)
+library(igraph)
+# simulation for 4 clusters, data 1 separates 12/3/4, data 2 separates 1/2/34, data 3 separates 1/2/3/4 but with vague division ----
+# output
+# data matrix with n_sub*n_feat
+
+# simulation par collection
+
+# noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
+truth = c(rep(1:2, each = 50), rep(3, 100))
+
+## simulate
+
+n_feat1 = 1000
+n_feat2 = 10000
+n_feat3 = 100000
+noise_sd = 2
+
+mu1 = c(0, 0, 1, -1)
+mu2 = c(1,-1,0,0)
+mu3 = c(1,2,3,4)
+
+
+data1 = get_data_4clust(n_feat = n_feat1, mu_vec = mu1, noise_sd = noise_sd)
+data2 = get_data_4clust(n_feat = n_feat2, mu_vec = mu2, noise_sd = noise_sd)
+data3 = get_data_4clust(n_feat = n_feat2, mu_vec = mu3, noise_sd = noise_sd)
+data_list = list(data1, data2, data3)
+
+n_data = length(data_list)
+
+## benchmark
+alpha = 1
+sigma = 2 # kernel_parameter
+diffusion_form = "L1"
+n = nrow(data_list[[1]])
+k = floor(sqrt(n))
+source("code/functions/Partition_CIMLR_2.0.R")
+source("code/functions/CIMLR_kernel_input.R")
+source("code/functions/visualization_functions.R")
+distance_list = lapply(data_list, function(x) dist2(x,x))
+kernel_list = lapply(distance_list, function(x) kernel_calculation(distance = x, k = k, sigma = sigma ))
+diff_kernel_list = lapply(kernel_list, function(x) diffusion_enhancement(kernel = x, alpha = alpha, k = k , diffusion_form = diffusion_form))
+
+# kernel ----
+# CIMLR
+res_cimlr = CIMLR_kernel(kernel_list, c = 4, k = k)
+
+# part_CIMLR
+res_part_cimlr_obj = part_cimlr(kernel_list, k = k, neig_single = rep(3,n_data), c = 4)
+Y = res_part_cimlr_obj$Y
+res_part_cimlr = list(S = Y %*% t(Y),
+                      cluster = res_part_cimlr_obj$cluster)
+
+kernel_res_list = list(res_cimlr = res_cimlr, res_part_cimlr = res_part_cimlr)
+
+# diff_kernel ----
+
+# CIMLR
+res_cimlr_diff = CIMLR_kernel(diff_kernel_list, c = 4, k = k)
+
+# part_CIMLR -- trial 1 neig_single = c(3,3,3)
+res_part_cimlr_diff_obj_333 = part_cimlr(diff_kernel_list, k = k, neig_single = c(3,3,3), c = 4)
+
+
+# part_CIMLR -- trial 2, neig_single = c(3,3,2)
+res_part_cimlr_diff_obj_332 = part_cimlr(diff_kernel_list, k = k, neig_single = c(3,3,2), c = 4)
+
+# part_CIMLR -- trial 1 neig_single = c(3,3,4)
+res_part_cimlr_diff_obj_334 = part_cimlr(diff_kernel_list, k = k, neig_single = c(3,3,4), c = 4)
+
+
+# combine to check
+Y = res_part_cimlr_diff_obj_334$Y
+res_part_cimlr_diff = list(S = Y %*% t(Y),
+                           cluster = res_part_cimlr_diff_obj_334$cluster)
+diff_kernel_res_list = list(res_cimlr = res_cimlr_diff, res_part_cimlr = res_part_cimlr_diff)
+
+# res_tib
+res_tib = expand_grid(kernel = c("kernel", "diff_kernel"),
+                      method = c("cimlr", "part_cimlr")) %>%
+  mutate(res_list = c(kernel_res_list, diff_kernel_res_list)) %>%
+  mutate(nmi = map_dbl(res_list, function(ls) compare(ls$cluster, rep(1:4, each = 50), "nmi")))
+
+res_tib

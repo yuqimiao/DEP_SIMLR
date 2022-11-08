@@ -85,7 +85,7 @@ heat_nohier = function(s, name = NA, diag = NULL){
   heatmap(tmp, Colv = NA, Rowv = NA, scale = "column", main = name)
 }
 
-heatmap_gg = function(mat, name, discrete = F){
+heatmap_gg = function(mat, name, xlab = "subject", ylab = "subject",discrete = F){
   if(is.null(colnames(mat))){
     rownames(mat) = 1:dim(mat)[1]
     colnames(mat) = 1:dim(mat)[2]
@@ -98,8 +98,10 @@ heatmap_gg = function(mat, name, discrete = F){
       theme(axis.text.x = element_blank(),
             axis.text.y = element_blank(),
             legend.position = "bottom")+
-      ggtitle(name) +
-      scale_fill_gradient(high="red", low = "white")
+      scale_fill_gradient(high="red", low = "white")+
+      labs(title = name,
+           x = xlab,
+           y = ylab)
   }else{
     g = ggplot(data=dat_melt,
                aes(x = Var1,y=Var2, fill = factor(value))) +
@@ -107,8 +109,10 @@ heatmap_gg = function(mat, name, discrete = F){
       theme(axis.text.x = element_blank(),
             axis.text.y = element_blank(),
             legend.position = "bottom")+
-      ggtitle(name) +
-      scale_fill_discrete(high="red", low = "white")
+      scale_fill_discrete()+
+      labs(title = name,
+           x = xlab,
+           y = ylab)
   }
   g
 }
@@ -116,7 +120,7 @@ heatmap_gg = function(mat, name, discrete = F){
 
 # input: list of clusters, list(method=cluster_label)
 # output: colorbar plot
-color_bar_cl = function(cluster_ls){
+color_bar_cl = function(cluster_ls, name = NA){
   tib = as_tibble(cluster_ls) %>%
     mutate(id = names(cluster_ls[[1]])) %>%
     pivot_longer(cols = c(part_cimlr, cimlr, SNF),
@@ -133,6 +137,10 @@ color_bar_cl = function(cluster_ls){
   g = ggplot(tib, aes(fill=cluster, x=id, y=method)) +
     geom_tile()+
     theme(axis.text.x = element_text(size = 3, angle = 45, hjust = 0.8))
+  if(!is.na(name)){
+    g = g+ggtitle(name)
+  }
+
   return(g)
 }
 
@@ -147,48 +155,47 @@ color_bar_cl = function(cluster_ls){
 # output: heatmap, an ggplot object
 
 feature_heatmap = function(mat = matrix(rnorm(50000), nrow = 500),
-                           column_id_order = NA,
-                           row_id_order = NA,
+                           column_id_order,
+                           row_id_order,
                            discrete = F,
                            xlab = "sample",
                            ylab = "feature",
                            name = "? feature heatmap"){
-  if(is.null(colnames(mat))){
-    rownames(mat) = 1:dim(mat)[1]
-    colnames(mat) = 1:dim(mat)[2]
-  }
+  # do normalization
+  print(dim(mat))
+  mat = mat[row_id_order,column_id_order]
+  mat = t(standardNormalization(t(mat)))
   # dat_melt = as_tibble(melt(mat))
   dat_melt = as_tibble(mat) %>%
-    mutate(rows = rownames(mat)) %>%
+    mutate(rows = row_id_order) %>%
     pivot_longer(cols = colnames(mat),
                  names_to = "columns",
                  values_to = "value")
 
-  if(!is.na(column_id_order)){
-    dat_melt = dat_melt %>%
-      mutate(columns = factor(columns, levels = column_id_order))
-  }
-
-  if(!is.na(row_id_order)){
-    dat_melt = dat_melt %>%
-      mutate(rows = factor(rows, levels = row_id_order))
-  }
+  dat_melt = dat_melt %>%
+    mutate(columns = factor(columns, levels = column_id_order)) %>%
+    mutate(rows = factor(rows, levels = row_id_order))
 
   g = ggplot(data=dat_melt,
-             aes(x = rows,y=columns, fill = value)) +
+             aes(x = columns,y=rows, fill = value)) +
     geom_tile() +
-    theme(axis.text.x = element_blank(),
+    theme(axis.text.x = element_text(angle = 45, size = 4),
           axis.text.y = element_blank(),
           legend.position = "right")+
-    labs(title = name,
-         x = xlab, y = ylab)
+    labs(x = xlab, y = ylab)
+
 
   if(!discrete){
     g = g +
-      scale_fill_gradient(high="red", low = "black")
+      scale_fill_gradient2(high="red",mid = "black", low = "green", midpoint = sum(range(dat_melt$value))/2)
+      #scale_fill_gradient2(high="light green", low = "dark green", midpoint = sum(range(dat_melt$value))/2)
   }else{
     g = g +
-      scale_fill_discrete(high="red", low = "black")
+      scale_fill_discrete(high="red", low = "green")
+  }
+
+  if(!is.na(name)){
+    g = g+ggtitle(name)
   }
   return(g)
 }

@@ -115,6 +115,7 @@ mu2 = c(1,-1,0,0)
 2 data integration, with increasing noise sd
 ```{r,fig.width=8, fig.height=6}
 mean_tib %>% 
+  filter(method!="part_cimlr_up") %>% 
   filter(comb!="1000-10000-1e+05") %>% 
   ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
   geom_line(aes(linetype=kernel_type, color = method))+
@@ -148,24 +149,28 @@ dir = "/Volumes/sw2206/yuqi/simu_221012_3"
 # tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
 # 
 # 
-# simu_tib = simu_tib =tibble(scenario = 1:4,
-#                  n_feat1 = c(1000, 1000, 10000, 1000),
-#                  n_feat2 = c(10000, 100000, 100000, 10000),
-#                  n_feat3 = c(NA,NA,NA, 100000)) %>%
+# simu_tib =tibble(scenario = 1:4,
+#                  n_feat1 = c(1000, 1000, 1000, NA),
+#                  n_feat2 = c(10000, 10000, NA, 10000),
+#                  n_feat3 = c(100000, NA, 100000, 100000)) %>%
 #   mutate(tib = map(scenario, function(s){
 #     tibble(noise_sd = seq(1,5,0.25))
 #   })) %>% unnest(tib) %>%
 #   mutate(scenario = seq_along(scenario))
 # 
 # 
-# mean_tib = tib_all %>% 
-#   mutate(simu_id = (simu_id-1)%/%100+1) %>% 
-#   left_join(simu_tib, by = c("simu_id" = "scenario")) %>% 
-#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %>% 
-#   dplyr::select(-noise_sd.y, -kernel) %>% 
-#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %>% 
+# mean_tib = tib_all %>%
+#   mutate(simu_id = (simu_id-1)%/%100+1) %>%
+#   left_join(simu_tib, by = c("simu_id" = "scenario")) %>%
+#   mutate(noise_sd = noise_sd.x, kernel_type = kernel) %>%
+#   dplyr::select(-noise_sd.y, -kernel) %>%
+#   group_by(n_feat1,n_feat2, n_feat3, noise_sd, kernel_type, method) %>%
 #   summarize(mean_nmi = mean(nmi)) %>% 
-#   mutate(comb = ifelse(is.na(n_feat3), paste(n_feat1, n_feat2, sep = "-"), paste(n_feat1, n_feat2, n_feat3, sep = "-")))
+#   mutate(comb = pmap_chr(list(n1 = n_feat1,n2 = n_feat2,n3 = n_feat3), function(n1,n2,n3){
+#     vec = c(n1,n2,n3)
+#     vec = vec[!is.na(vec)]
+#     paste(vec, collapse = "-")
+#   }))
 # 
 # saveRDS(mean_tib, paste(dir,"/mean_tib.rds", sep = ""))
 
@@ -229,7 +234,14 @@ mean_tib = readRDS(paste(dir,"/mean_tib.rds", sep = ""))
   geom_line()+
   geom_point()+
   facet_grid(metric~n_feat)
+# ggsave("docs/Extracted_plots/221017_1_diff.png")
 ```
+
+```{r}
+# ggsave("docs/Extracted_plots/diff_denoise.png")
+# See code/simulation_scripts/simu_221012_analysis.R
+```
+
 
 
 ## 221017_2 effect of partition-level integration for 2 data

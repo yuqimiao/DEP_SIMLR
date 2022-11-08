@@ -1,0 +1,94 @@
+---
+title: "simulation_log"
+author: "yuqimiao"
+date: "2022-10-17"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Introduction
+
+This notebook record the old simulation results reading code
+
+```{r}
+library(tidyverse)
+# need to connect to cluster
+```
+
+# 220930 4 clusters
+
+**Basic setting: **
+
+The setting is to have 4 clusters in total. Dataset 1 separates clusters (1+2) from 3, and 4. Dataset 2 separates clusters 1, 2 and (3+4). That is, using dataset 1 or 2 only, you can detect 3 clusters, although 2 sets of three different clusters. Only when you use both datasets 1 and 2, you can detect 4 clusters. This way, the overlapping information of the 2 datasets are, clusters (1+2) from clusters (3+4). The unique information of dataset 1 is to separate cluster 1 and 2. The unique information of dataset 2 is to separate cluster 3 and 4.
+
+**Parameters: **
+
+* n_feat1 = 1000
+* n_feat2 = 100000
+* mu1 = c(0, 0, 1, -1)
+* mu2 = c(1,-1,0,0)
+
+```{r}
+# data read in
+dir = "/Volumes/sw2206/yuqi/simu_220930"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
+#   tib_all = rbind(tib_all, tib)
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+
+tib_all %>% unnest(res_tib) %>% 
+  group_by(noise_sd, kernel, method) %>% 
+  summarize(mean_nmi = mean(nmi),
+         sd_nmi = sd(nmi)) %>% 
+  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
+  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
+  geom_point()
+```
+
+From above, we can see that the diffusion actually decrease the performance of part-cimlr when the noise is large. One potential improvement is to update the eigenvector used for single data partition information. 
+
+## 220930-extension 4 cluster
+
+Here we extend the 4 cluster scenario in 220930 in terms of the following terms:
+1. Trial of part-cimlr with the update_c, i.e, with only informative eigenvecros as partition information, to see if the performance of the diffusion version of part-cimlr is improving
+2. Extend the noise_sd to see the overall performance: noise_sd_all = c(1, 1.25, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4)
+
+```{r}
+# data read in
+dir = "/Volumes/sw2206/yuqi/simu_220930_2"
+# files = list.files(dir)
+# tib_all = NULL
+# for(i in 1:length(files)){
+#   tib = readRDS(paste(dir,"/", files[i], sep = ""))
+#   tib_all = rbind(tib_all, tib)
+# }
+# saveRDS(tib_all, paste(dir, "/all_data.rds", sep = ""))
+
+tib_all = readRDS(paste(dir, "/all_data.rds", sep = ""))
+
+tib_all %>% unnest(res_tib) %>% 
+  group_by(noise_sd, kernel, method) %>% 
+  summarize(mean_nmi = mean(nmi),
+         sd_nmi = sd(nmi)) %>% 
+  mutate(kernel = factor(kernel, levels = c("kernel", "diff_kernel"))) %>% 
+  ggplot(aes(x = noise_sd, y = mean_nmi, color = method))+
+  geom_line(aes(linetype=kernel, color = method))+
+  # geom_errorbar(aes(ymin=mean_nmi-sd_nmi, ymax=mean_nmi+sd_nmi), width=.2)
+  geom_point()
+```
+
+From the simulation result, we can see that the performance of part_cimlr_up has a sharp drop when the noise_sd increase to 3.25 from 3. I start a new notebook [here](choose_eigenvec_number.html) to illustrate the possible reasons and improvement. In a word, once we want to use eigenvector to represents the similarity matrix/GL matrix, we need to use eigengap to find the eigenvectors actually contains information. 
+
+But when the information contained in the data is vague, the eigen gap is invalid. The max gap is occured randomly. Thus we need to further explore the eigenvectors to use as partition information. Currently reading Dataspectropy, Shi, 2009
+
+```{r}
+
+```
+

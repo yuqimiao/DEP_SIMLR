@@ -1,0 +1,214 @@
+---
+title: "TCGA_pancancer_survival"
+author: "yuqimiao"
+date: "2022-11-05"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Introduction
+
+This script summarize the results from the TCGA pancancer analysis and pick the cancers with good performance for visualization
+
+
+# Pancancer analysis results and store files log
+
+```{r, include = F}
+library(tidyverse)
+library(flexsurv)
+library(survival)
+library(MASS)
+library(survminer)
+surv_tib_all = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/all_surv_clust_tib.rds")
+## Cherry picking ----
+surv_tib_check = surv_tib_all %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  filter(min_clust_size > 10) %>%
+  filter(data_type == "Integration") %>%
+  dplyr::select(-c(data,tib)) %>%
+  filter(surv_pv<=0.05) %>%
+  unnest(surv_pv) %>%
+  ungroup() %>%
+  arrange(cancer,surv_pv)
+
+kirc_tib = surv_tib_all %>% filter(cancer == "KIRC") %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  # filter(min_clust_size > 20) %>%
+  filter(c == 3 | method == "spectral") %>%
+  unnest(surv_pv)
+
+kirc_check = kirc_tib %>%
+  dplyr::select(-c(data,tib))
+
+luad_tib = surv_tib_all %>% filter(cancer == "LUAD") %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  # filter(min_clust_size > 20) %>%
+  filter(c == 4 | method == "spectral") %>%
+  unnest(surv_pv)
+
+luad_check = luad_tib %>%
+  dplyr::select(-c(data,tib))
+
+kirp_tib = surv_tib_all %>% filter(cancer == "KIRP") %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  # filter(min_clust_size > 20) %>%
+  filter(c == 4 | method == "spectral") %>%
+  unnest(surv_pv)
+
+kirp_check = kirp_tib %>%
+  dplyr::select(-c(data,tib))
+```
+
+survival checking tibble
+```{r}
+surv_tib_check
+```
+
+Criteria for cancer picking:
+1. diff_part_cimlr has better performance
+2. smallest cancer have at least 20 subjects ? not right for KIRP
+3. integration can find more subtypes
+
+Picking KIRP, KIRC and IUAD
+
+
+# Visualization
+
+## Feature selection for visualization
+
+Using Laplacian score and robust rank aggregation for feature picking;
+
+i.e., we choose the features consistent with the similarity matrix learned from diff-part-cimlr to visualize. 
+
+In detail,the laplacian score is calculated as $\frac{f^TSf}{f^Tf}$, the larger the score, the more consistent feature f is to the similarity measures in S;
+Then we use robust rank aggregation for feature ranking. Specifically, we use 100 80% BS samples to get the feature score vectors, and then we rank within each BS samples, composing of a $100\times D_s$ feature rank matrix, with ith column corresponding to the rank of feature i within 100 BS samples, denoted as $r_i$;  For $r_i$, we further rank the 100 BS samples to get $r_{i,(1)}\leq r_{i,(2)} \leq \cdots \leq r_{i,(100)}$, and for each order statistics, we can calculate the probability of the order stat under the uniform null distribution is smaller than the observed kth order statistics, and choose the smallest probability as a score of the gene. The smaller the score, the more likely the gene is informative, or to say having a non-null distribution of the rank among the BS samples;
+
+
+## Visualization for KIRP
+
+Detailed functions is in 'survival_res_analysis.R'
+```{r}
+g_kirp = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirp_plots.rds")
+```
+
+survival tib
+```{r}
+kirp_check
+```
+
+surv_plot
+```{r}
+g_kirp$g_sing_surv
+g_kirp$g_integ_surv
+```
+
+
+heatmap for gene expr
+```{r}
+g_kirp$g_expr
+```
+
+heatmap for methylation
+
+```{r}
+g_kirp$g_me
+```
+
+## Visualization for KIRC
+
+```{r}
+g_kirc = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirc_plots.rds")
+```
+
+survival tib
+```{r}
+kirc_check
+```
+
+surv_plot
+```{r}
+g_kirc$g_sing_surv
+g_kirc$g_integ_surv
+```
+
+
+heatmap for gene expr
+```{r}
+g_kirc$g_expr
+```
+
+heatmap for methylation
+
+```{r}
+g_kirc$g_me
+```
+
+## Visualization for LUAD
+
+```{r}
+g_luad = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/luad_plots.rds")
+```
+
+survival tib
+```{r}
+luad_check
+```
+
+
+surv_plot
+```{r}
+g_luad$g_sing_surv
+g_luad$g_integ_surv
+```
+
+
+heatmap for gene expr
+```{r}
+g_luad$g_expr
+```
+
+heatmap for methylation
+
+```{r}
+g_luad$g_me
+```
+
+
+# Potential problems in analysis
+
+1. The number of mutation gene per cancer is small. 
+
+```{r}
+# saveRDS(mutation_dim, file = "./data/mutation_dim.rds")
+mutation_dim = readRDS("./data/mutation_dim.rds")
+
+knitr::kable(mutation_dim)
+```
+
+2. the gene expression data is not normalized;
+Very large counts in the data, presumably preprocess steps need to be done ;
+
+3. Using RRA to rank the features for visualization will give an imbalanced feature ranking, there the clusters sparate further away will dominant those top features;
+
+4. Use other source of data
+
+http://firebrowse.org/
+
+https://github.com/mariodeng/FirebrowseR
+
+microRNA available
+tractable preprocess
+
