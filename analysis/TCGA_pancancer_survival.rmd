@@ -20,74 +20,224 @@ library(flexsurv)
 library(survival)
 library(MASS)
 library(survminer)
-surv_tib_all = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/all_surv_clust_tib.rds")
+source("./code/functions/visualization_functions.R")
+res_dir = "/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap_upMu_nonorm"
+```
+
+Two strateges here are used for choosing the possible candidate cancers:
+
+1. using Peifeng's criteria, we remove the samples within small clusters and re calulate the log rank pv of the remaining samples
+```{r, include = F}
 ## Cherry picking ----
-surv_tib_check = surv_tib_all %>%
-  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
-  mutate(min_clust_size = map_dbl(tib, function(tib){
-    min(table(tib$cluster))
-  })) %>%
-  filter(min_clust_size > 10) %>%
-  filter(data_type == "Integration") %>%
-  dplyr::select(-c(data,tib)) %>%
-  filter(surv_pv<=0.05) %>%
-  unnest(surv_pv) %>%
+surv_tib_all_remove_sample = readRDS(paste(res_dir, "/", "all_surv_clust_remove_sample.rds", sep = "")) 
+surv_tib_check_remove_sample = surv_tib_all_remove_sample %>%
   ungroup() %>%
-  arrange(cancer,surv_pv)
-
-kirc_tib = surv_tib_all %>% filter(cancer == "KIRC") %>%
   mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
-  mutate(min_clust_size = map_dbl(tib, function(tib){
-    min(table(tib$cluster))
+  mutate(tib_tmp = map(tib, function(tib){
+    tibble(min_clust_size = min(table(tib$cluster)[table(tib$cluster)>0]),
+           true_c = length(table(tib$cluster)[table(tib$cluster)>0]))
   })) %>%
-  # filter(min_clust_size > 20) %>%
-  filter(c == 3 | method == "spectral") %>%
-  unnest(surv_pv)
+  unnest(tib_tmp) %>% 
+  # filter(min_clust_size >= 10) %>%
+  # filter(data_type == "Integration") %>%
+  dplyr::select(-c(data,tib)) %>%
+  unnest(surv_pv) %>%
+  arrange(cancer,method, surv_pv)
 
-kirc_check = kirc_tib %>%
-  dplyr::select(-c(data,tib))
-
-luad_tib = surv_tib_all %>% filter(cancer == "LUAD") %>%
-  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
-  mutate(min_clust_size = map_dbl(tib, function(tib){
-    min(table(tib$cluster))
+surv_tib_check_minpv_remove_sample = surv_tib_check_remove_sample %>%
+  nest(data = -c(cancer, method, kernel_type)) %>%
+  mutate(data = map(data, function(dat){
+    dat = dat %>%
+      filter(surv_pv == min(surv_pv))
   })) %>%
-  # filter(min_clust_size > 20) %>%
-  filter(c == 4 | method == "spectral") %>%
-  unnest(surv_pv)
-
-luad_check = luad_tib %>%
-  dplyr::select(-c(data,tib))
-
-kirp_tib = surv_tib_all %>% filter(cancer == "KIRP") %>%
-  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
-  mutate(min_clust_size = map_dbl(tib, function(tib){
-    min(table(tib$cluster))
-  })) %>%
-  # filter(min_clust_size > 20) %>%
-  filter(c == 4 | method == "spectral") %>%
-  unnest(surv_pv)
-
-kirp_check = kirp_tib %>%
-  dplyr::select(-c(data,tib))
+  unnest(data) 
 ```
 
-survival checking tibble
+Select BLCA and THCA
 ```{r}
-surv_tib_check
+select_tib = surv_tib_check_minpv_remove_sample %>% 
+  filter(cancer %in% c("BLCA","THCA")) %>% 
+  arrange(cancer, kernel_type, method)
+
+knitr::kable(select_tib)
 ```
 
-Criteria for cancer picking:
-1. diff_part_cimlr has better performance
-2. smallest cancer have at least 20 subjects ? not right for KIRP
-3. integration can find more subtypes
 
-Picking KIRP, KIRC and IUAD
+2. remove c: for each c of each method, if the min clusters size <10, then we don't regard c as a valid number and remove the clustering results of c for the method 
+```{r}
+## Cherry picking ----
+surv_tib_all_remove_c = readRDS(paste(res_dir, "/", "all_surv_clust_remove_c.rds", sep = "")) # filter < 10 clusters, with normalization, new mutation data
+
+surv_tib_check_remove_c = surv_tib_all_remove_c %>%
+  ungroup() %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  # filter(min_clust_size >= 10) %>%
+  # filter(data_type == "Integration") %>%
+  dplyr::select(-c(data,tib)) %>%
+  unnest(surv_pv) %>%
+  arrange(cancer,method, surv_pv)
+
+surv_tib_check_minpv_remove_c = surv_tib_check_remove_c %>%
+  nest(data = -c(cancer, method, kernel_type,data_type)) %>%
+  mutate(data = map(data, function(dat){
+    dat = dat %>%
+      filter(surv_pv == min(surv_pv))
+  })) %>%
+  # filter(surv_pv<=0.05) %>%
+  unnest(data)
+
+knitr::kable(surv_tib_check_minpv_remove_c)
+```
+
+Select BLCA, STAD and THCA
+```{r}
+select_tib = surv_tib_check_minpv_remove_c %>% 
+  filter(cancer %in% c("BLCA","STAD","THCA")) %>% 
+  arrange(cancer, kernel_type, method)
+
+knitr::kable(select_tib, digits = 32)
+```
+
 
 
 # Visualization
 
+## survival curv
+
+BLCA
+```{r}
+check_tib = select_tib %>% 
+  filter(cancer == "BLCA")
+knitr::kable(check_tib)
+surv_tib = surv_tib_all_remove_c %>% 
+  filter(cancer == "BLCA") %>% 
+  dplyr::select(-data) %>% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != "Integration"),
+                                 facet.by = c("kernel_type", "data_type"))+
+    ggtitle(paste("Single data survival curve for BLCA"))
+
+surv_tib_integ = surv_tib %>% 
+  filter(data_type == "Integration") %>%
+  group_by(cancer, kernel_type, method) %>% 
+  unnest(surv_pv) %>% 
+  filter(surv_pv == min(surv_pv)) %>% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c("kernel_type", "method"))+
+    ggtitle(paste("Integrated data survival curve for BLCA"))
+
+```
+
+```{r}
+expr_cl = surv_tib %>% 
+  filter(kernel_type == "diff_kernel" & data_type == "expr") %>% pull(cluster)
+me_cl = surv_tib %>% 
+  filter(kernel_type == "diff_kernel" & data_type == "me") %>% pull(cluster)
+mu_cl = surv_tib %>% 
+  filter(kernel_type == "diff_kernel" & data_type == "mu") %>% pull(cluster)
+diff_part_cl = surv_tib %>% 
+  filter(kernel_type == "diff_kernel" & method == "part_cimlr" & c == 4) %>% pull(cluster)
+
+cluster_tib = tibble(expr_cl = expr_cl,me_cl = me_cl, mu_cl = mu_cl,diff_part_cl = diff_part_cl) 
+cluster_tib %>% 
+  group_by(mu_cl, diff_part_cl) %>% 
+  summarise(n = n()) %>% 
+  mutate(freq = n/sum(n))
+
+cluster_tib %>% 
+  group_by(me_cl, diff_part_cl) %>% 
+  summarise(n = n()) %>% 
+  mutate(freq = n/sum(n))
+
+cluster_tib %>% 
+  group_by(expr_cl, diff_part_cl) %>% 
+  summarise(n = n()) %>% 
+  mutate(freq = n/sum(n))
+
+  
+```
+
+
+STAD
+```{r}
+check_tib = select_tib %>% 
+  filter(cancer == "STAD")
+knitr::kable(check_tib)
+
+surv_tib = surv_tib_all_remove_c %>% 
+  filter(cancer == "STAD") %>% 
+  dplyr::select(-data) %>% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != "Integration"),
+                                 facet.by = c("kernel_type", "data_type"))+
+    ggtitle(paste("Single data survival curve for STAD"))
+
+surv_tib_integ = surv_tib %>% 
+  filter(data_type == "Integration") %>%
+  group_by(cancer, kernel_type, method) %>% 
+  unnest(surv_pv) %>% 
+  filter(surv_pv == min(surv_pv)) %>% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c("kernel_type", "method"))+
+    ggtitle(paste("Integrated data survival curve for STAD"))
+```
+
+THCA
+```{r}
+check_tib = select_tib %>% 
+  filter(cancer == "THCA")
+knitr::kable(check_tib)
+
+surv_tib = surv_tib_all_remove_c %>% 
+  filter(cancer == "THCA") %>% 
+  dplyr::select(-data) %>% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != "Integration"),
+                                 facet.by = c("kernel_type", "data_type"))+
+    ggtitle(paste("Single data survival curve for THCA"))
+
+surv_tib_integ = surv_tib %>% 
+  filter(data_type == "Integration") %>%
+  group_by(cancer, kernel_type, method) %>% 
+  unnest(surv_pv) %>% 
+  filter(surv_pv == min(surv_pv)) %>% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c("kernel_type", "method"))+
+    ggtitle(paste("Integrated data survival curve for THCA"))
+```
+
 ## Feature selection for visualization
+
 
 Using Laplacian score and robust rank aggregation for feature picking;
 
@@ -96,119 +246,127 @@ i.e., we choose the features consistent with the similarity matrix learned from 
 In detail,the laplacian score is calculated as $\frac{f^TSf}{f^Tf}$, the larger the score, the more consistent feature f is to the similarity measures in S;
 Then we use robust rank aggregation for feature ranking. Specifically, we use 100 80% BS samples to get the feature score vectors, and then we rank within each BS samples, composing of a $100\times D_s$ feature rank matrix, with ith column corresponding to the rank of feature i within 100 BS samples, denoted as $r_i$;  For $r_i$, we further rank the 100 BS samples to get $r_{i,(1)}\leq r_{i,(2)} \leq \cdots \leq r_{i,(100)}$, and for each order statistics, we can calculate the probability of the order stat under the uniform null distribution is smaller than the observed kth order statistics, and choose the smallest probability as a score of the gene. The smaller the score, the more likely the gene is informative, or to say having a non-null distribution of the rank among the BS samples;
 
-
-## Visualization for KIRP
-
-Detailed functions is in 'survival_res_analysis.R'
 ```{r}
-g_kirp = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirp_plots.rds")
-```
-
-survival tib
-```{r}
-kirp_check
-```
-
-surv_plot
-```{r}
-g_kirp$g_sing_surv
-g_kirp$g_integ_surv
+# pick_dir = "/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap_upMu_nonorm/pick"
+# path_check_tib = readRDS(paste(pick_dir, "/path_check_tib.rds",sep = ""))
 ```
 
 
-heatmap for gene expr
-```{r}
-g_kirp$g_expr
+```{r results='asis'}
+# # plot_dir = "./analysis/docs/figure/pancancer_plots"
+# # for(i in 1:nrow(path_check_tib)){
+# #   cancer_cur = path_check_tib$cancer[[i]]
+# #   tb = knitr::kable(path_check_tib$check_tib[[i]], digits = 32)
+# #   print(tb)
+# #   g_ls = readRDS(path_check_tib$plot_path[[i]])
+#   # plot_dir_cur = plot_dir
+#   # if(!file.exists(plot_dir_cur)){dir.create(plot_dir_cur)}
+#   # "surv_plot"
+#   print(g_ls$g_sing_surv)
+#   # ggsave(plot = g_ls$g_sing_surv, filename = paste(plot_dir_cur, "/", cancer_cur, "_sing_surv.png", sep = ""),
+#   #        width = 10, height = 8)
+#   print(g_ls$g_integ_surv)
+#   # ggsave(plot = g_ls$g_integ_surv, filename = paste(plot_dir_cur, "/", cancer_cur, "_integ_surv.png", sep = ""),
+#   #        width = 10, height = 8)
+#   # "heatmap for gene expr"
+#   print(g_ls$g_expr)
+#   # ggsave(plot = g_ls$g_expr, filename = paste(plot_dir_cur, "/", cancer_cur, "_expr_heat.png", sep = ""),
+#   #        width = 12, height = 8)
+#   # "heatmap for methylation"
+#   print(g_ls$g_me)
+#   # ggsave(plot = g_ls$g_me, filename = paste(plot_dir_cur, "/", cancer_cur, "_me_heat.png", sep = ""),
+#   #        width = 12, height = 8)
+#   # "heatmap for mutation"
+#   print(g_ls$g_mu)
+#   # ggsave(plot = g_ls$g_mu, filename = paste(plot_dir_cur, "/", cancer_cur, "_mu_heat.png", sep = ""),
+#   #        width = 12, height = 8)
+#   
+# }
 ```
 
-heatmap for methylation
-
-```{r}
-g_kirp$g_me
-```
-
-## Visualization for KIRC
-
-```{r}
-g_kirc = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirc_plots.rds")
-```
-
-survival tib
-```{r}
-kirc_check
-```
-
-surv_plot
-```{r}
-g_kirc$g_sing_surv
-g_kirc$g_integ_surv
-```
+Focused on the STAD/LUAD/KIRP/PRAD;
 
 
-heatmap for gene expr
-```{r}
-g_kirc$g_expr
-```
+# Write up paragraphs
 
-heatmap for methylation
+We perform cancer subtyping analysis on four types of cancer: LUAD, STAD, KIRP and PRAD. Three tyoes of omics data for each cancer types are considered: gene expression data, DNA methylation data and the somtic mutation data. 
+[Add] All tumor sampels are donwloaded from the TCGA websites and the initial sample size are
 
-```{r}
-g_kirc$g_me
-```
+All 3 data types pass the outlier removal and imputation steps. Specifically, samples with more than 30% missings among featuers for any dat types are first removed as outlier samples, then the features with more than 30% missing are removed. For the remaining missins in the gene expression and the methylation data, we use K-nearest-neighbor imputation to complete the data matrices. For DNA methylation,we further removed CpG sites on sex chromosomes and CpG sites overlapping with known single nucleotide polymorphisms and also corrected type I/II probe bias using wateRmelon (Pidsley et al., 2013). 
 
-## Visualization for LUAD
-
-```{r}
-g_luad = readRDS("/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/luad_plots.rds")
-```
-
-survival tib
-```{r}
-luad_check
-```
-
-
-surv_plot
-```{r}
-g_luad$g_sing_surv
-g_luad$g_integ_surv
-```
-
-
-heatmap for gene expr
-```{r}
-g_luad$g_expr
-```
-
-heatmap for methylation
-
-```{r}
-g_luad$g_me
-```
+To pick the number of clusters for each data type, we focus on the following criteria: Firstly, the number of each clusters should be larger than 10, then we pick the number of clusters which gives the most significant survival differences 
 
 
 # Potential problems in analysis
 
-1. The number of mutation gene per cancer is small. 
+1. No normalization makes better performance
 
+the gene expression data is not normalized;
+Very large counts in the data, presumably preprocess steps need to be done;
+
+Our method will give small cluster when there is extreme block in the similarity matrix, which is tend to show out when performing normalization
 ```{r}
-# saveRDS(mutation_dim, file = "./data/mutation_dim.rds")
-mutation_dim = readRDS("./data/mutation_dim.rds")
+# See details in "../code/Code_collection/TCGA_survival_pan_cancer_pipeline/res_explore.R"
 
-knitr::kable(mutation_dim)
+load("data/pancancer_smaller_cluster_explore.Rdata")
+
+table(res_part$cluster)
+table(res_cim$cluster)
+table(res_snf$cluster)
+
+heatmap_gg(kernel[sort(res_part$cluster, index.return = T)$ix,sort(res_part$cluster, index.return = T)$ix],"dist sub aligned by cluster ind")
+heatmap_gg(kernel_st[sort(res_part$cluster, index.return = T)$ix,sort(res_part$cluster, index.return = T)$ix],"standard dist sub aligned by cluster ind")
+
+
 ```
 
-2. the gene expression data is not normalized;
-Very large counts in the data, presumably preprocess steps need to be done ;
 
-3. Using RRA to rank the features for visualization will give an imbalanced feature ranking, there the clusters sparate further away will dominant those top features;
+```{r}
+res_dir = "/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap_upMu" # new mutation data, with normalization
+surv_tib_all = readRDS(paste(res_dir, "/", "all_surv_clust_tib.rds", sep = ""))
 
-4. Use other source of data
+surv_tib_check = surv_tib_all %>%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %>%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %>%
+  # filter(min_clust_size > 10) %>%
+  filter(data_type == "Integration") %>%
+  dplyr::select(-c(data,tib)) %>%
+  filter(surv_pv<=0.05) %>%
+  unnest(surv_pv) %>%
+  ungroup() %>%
+  arrange(cancer,surv_pv)
+
+#
+# surv_tib_check %>%
+#   filter(method == "part_cimlr") %>%
+#   filter()
+```
+
+2. Choosing number of clusters:
+
+LUAD: 7: kernel>diff_kernel
+
+3. Hyperparameter justification?
+
+In diffusion: 
+alpha: Find literature regarding the RWR parameter choosing
+number of layers for diffusion;
+
+In optimization:
+rho, the importance of the integrated data, currently as 1
+
+0. Use other source of data
 
 http://firebrowse.org/
 
 https://github.com/mariodeng/FirebrowseR
-
+But the methylation data are genewise aggregation, not applicable
 microRNA available
+
 tractable preprocess
+
+
+
 

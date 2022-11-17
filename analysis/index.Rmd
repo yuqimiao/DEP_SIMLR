@@ -26,9 +26,11 @@ Index:
 
 [TCGA_survival_analysis](TCGA_survival_analysis.html)
 
+[TCGA_pancancer_survival](TCGA_pancancer_survival.html)
+
 ```{r}
 # wflow_publish(c("analysis/index.rmd",
-#                 "analysis/simulation_notebook.rmd"
+#                 "analysis/TCGA_pancancer_survival.rmd"
 #                 ),"update")
 
 # wflow_publish(c("analysis/index.rmd"),"update")
