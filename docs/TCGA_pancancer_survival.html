@@ -15,13 +15,22 @@
 
 <title>TCGA_pancancer_survival</title>
 
-<script src="site_libs/header-attrs-2.1/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -29,7 +38,7 @@
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
-<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
 <style type="text/css">
 div.section {
@@ -39,12 +48,16 @@ div.section {
 
 
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -57,32 +70,8 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
+
 
 
 
@@ -92,10 +81,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -112,40 +97,16 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -173,7 +134,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -185,7 +146,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -195,11 +156,28 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.parent().addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -211,7 +189,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -337,7 +314,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -351,7 +328,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -377,7 +354,7 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
@@ -390,7 +367,9 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -399,7 +378,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -408,17 +389,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-11-07
+<strong>Last updated:</strong> 2022-11-17
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>DEP_SIMLR/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>DEP_SIMLR/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -427,132 +418,170 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20221003code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20221003)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20221003code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20221003)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20221003code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20221003code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20221003)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20221003)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree72c8d0904cd32a6d16b08ce87d585f53bc714eb5targetblank72c8d09a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/72c8d0904cd32a6d16b08ce87d585f53bc714eb5" target="_blank">72c8d09</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree1030dfdc02508831eacb684f1b76f578e4c98fbatargetblank1030dfda">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/tree/1030dfdc02508831eacb684f1b76f578e4c98fba" target="_blank">1030dfd</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree72c8d0904cd32a6d16b08ce87d585f53bc714eb5targetblank72c8d09a" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomyuqimiaoDEPSIMLRtree1030dfdc02508831eacb684f1b76f578e4c98fbatargetblank1030dfda"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/yuqimiao/DEP_SIMLR/tree/72c8d0904cd32a6d16b08ce87d585f53bc714eb5" target="_blank">72c8d09</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/yuqimiao/DEP_SIMLR/tree/1030dfdc02508831eacb684f1b76f578e4c98fba" target="_blank">1030dfd</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    analysis/docs/.DS_Store
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
     Ignored:    analysis/docs/figure/.DS_Store
     Ignored:    code/.DS_Store
-    Ignored:    code/Code_collection/.DS_Store
     Ignored:    code/Code_collection/TCGA_survival_analysis/.DS_Store
 
 Untracked files:
-    Untracked:  CheckBMIQ-1.pdf
-    Untracked:  Type1fit-1.pdf
-    Untracked:  Type2fit-1.pdf
-    Untracked:  analysis/TCGA_pancancer_survival.rmd
-    Untracked:  analysis/simulation_log.rmd
-    Untracked:  code/Code_collection/DEP-SIMLR_code_log.md
-    Untracked:  code/Code_collection/TCGA_survival_analysis/Package_install.R
-    Untracked:  code/Code_collection/TCGA_survival_analysis/SVA_combat.R
-    Untracked:  code/Code_collection/TCGA_survival_analysis/methyl_BMIQ_normalization.R
-    Untracked:  code/Code_collection/TCGA_survival_pan_cancer_pipeline/
-    Untracked:  code/functions/feature_score.R
-    Untracked:  code/simulation_scripts/simu_221012_3.R
-    Untracked:  code/simulation_scripts/simu_221017_1.R
-    Untracked:  code/simulation_scripts/simu_221017_2.R
-    Untracked:  code/simulation_scripts/simu_221017_3.R
-    Untracked:  data/mutation_dim.rds
+    Untracked:  MANIFEST.txt
+    Untracked:  analysis/pancancer_plots/
+    Untracked:  code/Code_collection/TCGA_survival_pan_cancer_pipeline/expression_data_download.R
+    Untracked:  code/Code_collection/TCGA_survival_pan_cancer_pipeline/mutation_data_download.R
+    Untracked:  code/Code_collection/TCGA_survival_pan_cancer_pipeline/res_explore.R
+    Untracked:  data/pancancer_smaller_cluster_explore.Rdata
 
 Unstaged changes:
-    Modified:   analysis/simulation_notebook.rmd
+    Modified:   code/Code_collection/TCGA_survival_pan_cancer_pipeline/Cancer_subtyping_pipeline.R
+    Modified:   code/Code_collection/TCGA_survival_pan_cancer_pipeline/feature_score_calc.R
+    Modified:   code/Code_collection/TCGA_survival_pan_cancer_pipeline/survival_pipeline.R
+    Modified:   code/Code_collection/TCGA_survival_pan_cancer_pipeline/survival_res_analysis.R
     Modified:   code/functions/visualization_functions.R
-    Modified:   code/simulation_scripts/simu_221012_analysis.R
-
-Staged changes:
-    Modified:   analysis/simulation_notebook.rmd
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -561,264 +590,3127 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/TCGA_pancancer_survival.rmd</code>) and HTML
+(<code>docs/TCGA_pancancer_survival.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/1030dfdc02508831eacb684f1b76f578e4c98fba/analysis/TCGA_pancancer_survival.rmd" target="_blank">1030dfd</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-17
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/070ad3a1ce3ac8757cf3679bb7164645eb057f99/analysis/TCGA_pancancer_survival.rmd" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+<td>
+pancancer
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/yuqimiao/DEP_SIMLR/070ad3a1ce3ac8757cf3679bb7164645eb057f99/docs/TCGA_pancancer_survival.html" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+<td>
+pancancer
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This script summarize the results from the TCGA pancancer analysis and pick the cancers with good performance for visualization</p>
+<p>This script summarize the results from the TCGA pancancer analysis
+and pick the cancers with good performance for visualization</p>
 </div>
-<div id="pancancer-analysis-results-and-store-files-log" class="section level1">
+<div id="pancancer-analysis-results-and-store-files-log"
+class="section level1">
 <h1>Pancancer analysis results and store files log</h1>
-<p>survival checking tibble</p>
-<pre class="r"><code>surv_tib_check</code></pre>
-<pre><code># A tibble: 55 × 8
-   cancer kernel_type data_type       c method surv_pv sample_size min_clust_size
-   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;
- 1 BLCA   diff_kernel Integration     6 SNF    0.00102         391             51
- 2 BLCA   diff_kernel Integration     5 SNF    0.00136         391             61
- 3 BLCA   kernel      Integration     5 SNF    0.00213         391             58
- 4 BLCA   kernel      Integration     6 SNF    0.00265         391             50
- 5 BLCA   kernel      Integration     4 SNF    0.00556         391             69
- 6 BLCA   diff_kernel Integration     4 SNF    0.00790         391             70
- 7 BLCA   kernel      Integration     3 cimlr  0.0109          391             50
- 8 BLCA   kernel      Integration     6 cimlr  0.0133          391             24
- 9 BLCA   kernel      Integration     7 SNF    0.0154          391             46
-10 BLCA   kernel      Integration     4 cimlr  0.0158          391             51
-# … with 45 more rows</code></pre>
-<p>Criteria for cancer picking: 1. diff_part_cimlr has better performance 2. smallest cancer have at least 20 subjects ? not right for KIRP 3. integration can find more subtypes</p>
-<p>Picking KIRP, KIRC and IUAD</p>
-</div>
-<div id="visualization" class="section level1">
-<h1>Visualization</h1>
-<div id="feature-selection-for-visualization" class="section level2">
-<h2>Feature selection for visualization</h2>
-<p>Using Laplacianc score and robust rank aggregation for feature picking; Specifically, we choose the features consistent with the similarity matrix learned from diff-part-cimlr</p>
-</div>
-<div id="visualization-for-kirp" class="section level2">
-<h2>Visualization for KIRP</h2>
-<p>Detailed functions is in ‘survival_res_analysis.R’</p>
-<pre class="r"><code>g_kirp = readRDS(&quot;/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirp_plots.rds&quot;)</code></pre>
-<p>survival tib</p>
-<pre class="r"><code>kirp_check</code></pre>
-<pre><code># A tibble: 12 × 8
-   cancer kernel_type data_type       c method      surv_pv sample_size min_clust_size
-   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;         &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;
- 1 KIRP   kernel      expr            2 spectral   5.21e- 2         148             59
- 2 KIRP   kernel      me              3 spectral   1.24e- 9         148             34
- 3 KIRP   kernel      mu              2 spectral   5.99e- 1         148             74
- 4 KIRP   kernel      Integration     4 SNF        1.58e- 1         148             19
- 5 KIRP   kernel      Integration     4 cimlr      1.40e- 1         148             23
- 6 KIRP   kernel      Integration     4 part_cimlr 1.31e-14         148              9
- 7 KIRP   diff_kernel expr            2 spectral   2.63e- 2         148             55
- 8 KIRP   diff_kernel me              3 spectral   4.85e-11         148             34
- 9 KIRP   diff_kernel mu              2 spectral   5.99e- 1         148             74
-10 KIRP   diff_kernel Integration     4 SNF        1.10e- 3         148             26
-11 KIRP   diff_kernel Integration     4 cimlr      2.41e- 1         148              9
-12 KIRP   diff_kernel Integration     4 part_cimlr 3.38e-14         148              9</code></pre>
-<p>surv_plot</p>
-<pre class="r"><code>g_kirp$g_sing_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>g_kirp$g_integ_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for gene expr</p>
-<pre class="r"><code>g_kirp$g_expr</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for methylation</p>
-<pre class="r"><code>g_kirp$g_me</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="visualization-for-kirc" class="section level2">
-<h2>Visualization for KIRC</h2>
-<pre class="r"><code>g_kirc = readRDS(&quot;/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/kirc_plots.rds&quot;)</code></pre>
-<p>survival tib</p>
-<pre class="r"><code>kirc_check</code></pre>
-<pre><code># A tibble: 12 × 8
-   cancer kernel_type data_type       c method     surv_pv sample_size min_clust_size
-   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;
- 1 KIRC   kernel      expr            2 spectral   9.38e-6         250            116
- 2 KIRC   kernel      me              2 spectral   3.88e-4         250             88
- 3 KIRC   kernel      mu              4 spectral   5.69e-1         250             42
- 4 KIRC   kernel      Integration     3 SNF        9.58e-1         250             29
- 5 KIRC   kernel      Integration     3 cimlr      6.57e-1         250             25
- 6 KIRC   kernel      Integration     3 part_cimlr 3.47e-1         250             43
- 7 KIRC   diff_kernel expr            2 spectral   4.04e-5         250            120
- 8 KIRC   diff_kernel me              2 spectral   4.29e-4         250             86
- 9 KIRC   diff_kernel mu              4 spectral   6.81e-1         250             41
-10 KIRC   diff_kernel Integration     3 SNF        1.14e-1         250             43
-11 KIRC   diff_kernel Integration     3 cimlr      6.57e-1         250             25
-12 KIRC   diff_kernel Integration     3 part_cimlr 3.16e-2         250             69</code></pre>
-<p>surv_plot</p>
-<pre class="r"><code>g_kirc$g_sing_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>g_kirc$g_integ_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for gene expr</p>
-<pre class="r"><code>g_kirc$g_expr</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for methylation</p>
-<pre class="r"><code>g_kirc$g_me</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="visualization-for-luad" class="section level2">
-<h2>Visualization for LUAD</h2>
-<pre class="r"><code>g_luad = readRDS(&quot;/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap/picking_3_cancer/luad_plots.rds&quot;)</code></pre>
-<p>survival tib</p>
-<pre class="r"><code>luad_check</code></pre>
-<pre><code># A tibble: 12 × 8
-   cancer kernel_type data_type       c method     surv_pv sample_size min_clust_size
-   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;
- 1 LUAD   kernel      expr            3 spectral   0.00127         427            101
- 2 LUAD   kernel      me              2 spectral   0.276           427            196
- 3 LUAD   kernel      mu              3 spectral   0.581           427             52
- 4 LUAD   kernel      Integration     4 SNF        0.257           427             55
- 5 LUAD   kernel      Integration     4 cimlr      0.0879          427             23
- 6 LUAD   kernel      Integration     4 part_cimlr 0.00661         427             23
- 7 LUAD   diff_kernel expr            3 spectral   0.00222         427            101
- 8 LUAD   diff_kernel me              2 spectral   0.498           427            195
- 9 LUAD   diff_kernel mu              2 spectral   0.0437          427             28
-10 LUAD   diff_kernel Integration     4 SNF        0.212           427             71
-11 LUAD   diff_kernel Integration     4 cimlr      0.0779          427             23
-12 LUAD   diff_kernel Integration     4 part_cimlr 0.00588         427             22</code></pre>
-<p>surv_plot</p>
-<pre class="r"><code>g_luad$g_sing_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>g_luad$g_integ_surv</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-15-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for gene expr</p>
-<pre class="r"><code>g_luad$g_expr</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>heatmap for methylation</p>
-<pre class="r"><code>g_luad$g_me</code></pre>
-<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-</div>
-<div id="potential-problems-in-analysis" class="section level1">
-<h1>Potential problems in analysis</h1>
+<p>Two strateges here are used for choosing the possible candidate
+cancers:</p>
 <ol style="list-style-type: decimal">
-<li>The number of mutation gene per cancer is small.</li>
+<li>using Peifeng’s criteria, we remove the samples within small
+clusters and re calulate the log rank pv of the remaining samples</li>
 </ol>
-<pre class="r"><code># saveRDS(mutation_dim, file = &quot;./data/mutation_dim.rds&quot;)
-mutation_dim = readRDS(&quot;./data/mutation_dim.rds&quot;)
+<p>Select BLCA and THCA</p>
+<pre class="r"><code>select_tib = surv_tib_check_minpv_remove_sample %&gt;% 
+  filter(cancer %in% c(&quot;BLCA&quot;,&quot;THCA&quot;)) %&gt;% 
+  arrange(cancer, kernel_type, method)
 
-knitr::kable(mutation_dim)</code></pre>
-<table>
+knitr::kable(select_tib)</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="7%" />
+<col width="13%" />
+<col width="12%" />
+<col width="13%" />
+<col width="3%" />
+<col width="11%" />
+<col width="13%" />
+<col width="16%" />
+<col width="7%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">cancer</th>
-<th align="right">n_mut</th>
+<th align="left">kernel_type</th>
+<th align="left">method</th>
+<th align="left">data_type</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+<th align="right">true_c</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">BLCA</td>
-<td align="right">60</td>
-</tr>
-<tr class="even">
-<td align="left">BRCA</td>
-<td align="right">57</td>
-</tr>
-<tr class="odd">
-<td align="left">CESC</td>
-<td align="right">15</td>
-</tr>
-<tr class="even">
-<td align="left">COAD</td>
-<td align="right">188</td>
-</tr>
-<tr class="odd">
-<td align="left">GBM_</td>
-<td align="right">21</td>
-</tr>
-<tr class="even">
-<td align="left">HNSC</td>
-<td align="right">36</td>
-</tr>
-<tr class="odd">
-<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">cimlr</td>
+<td align="left">Integration</td>
+<td align="right">6</td>
+<td align="right">0.0079538</td>
+<td align="right">386</td>
 <td align="right">12</td>
+<td align="right">6</td>
 </tr>
 <tr class="even">
-<td align="left">KIRP</td>
-<td align="right">11</td>
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">part_cimlr</td>
+<td align="left">Integration</td>
+<td align="right">4</td>
+<td align="right">0.0000341</td>
+<td align="right">386</td>
+<td align="right">40</td>
+<td align="right">4</td>
 </tr>
 <tr class="odd">
-<td align="left">LGG_</td>
-<td align="right">50</td>
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">SNF</td>
+<td align="left">Integration</td>
+<td align="right">3</td>
+<td align="right">0.0008300</td>
+<td align="right">386</td>
+<td align="right">94</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
-<td align="left">LIHC</td>
-<td align="right">14</td>
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">spectral</td>
+<td align="left">mu</td>
+<td align="right">2</td>
+<td align="right">0.0009483</td>
+<td align="right">386</td>
+<td align="right">112</td>
+<td align="right">2</td>
 </tr>
 <tr class="odd">
-<td align="left">LUAD</td>
-<td align="right">52</td>
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">cimlr</td>
+<td align="left">Integration</td>
+<td align="right">8</td>
+<td align="right">0.0147850</td>
+<td align="right">359</td>
+<td align="right">19</td>
+<td align="right">4</td>
 </tr>
 <tr class="even">
-<td align="left">LUSC</td>
-<td align="right">15</td>
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">part_cimlr</td>
+<td align="left">Integration</td>
+<td align="right">3</td>
+<td align="right">0.0011477</td>
+<td align="right">386</td>
+<td align="right">64</td>
+<td align="right">3</td>
 </tr>
 <tr class="odd">
-<td align="left">PAAD</td>
-<td align="right">81</td>
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">SNF</td>
+<td align="left">Integration</td>
+<td align="right">8</td>
+<td align="right">0.0042736</td>
+<td align="right">386</td>
+<td align="right">37</td>
+<td align="right">8</td>
 </tr>
 <tr class="even">
-<td align="left">PCPG</td>
-<td align="right">5</td>
-</tr>
-<tr class="odd">
-<td align="left">PRAD</td>
-<td align="right">11</td>
-</tr>
-<tr class="even">
-<td align="left">SARC</td>
-<td align="right">15</td>
-</tr>
-<tr class="odd">
-<td align="left">STAD</td>
-<td align="right">65</td>
-</tr>
-<tr class="even">
-<td align="left">TGCT</td>
-<td align="right">16</td>
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">spectral</td>
+<td align="left">mu</td>
+<td align="right">2</td>
+<td align="right">0.0006979</td>
+<td align="right">386</td>
+<td align="right">187</td>
+<td align="right">2</td>
 </tr>
 <tr class="odd">
 <td align="left">THCA</td>
-<td align="right">5</td>
+<td align="left">diff_kernel</td>
+<td align="left">cimlr</td>
+<td align="left">Integration</td>
+<td align="right">4</td>
+<td align="right">0.6627619</td>
+<td align="right">393</td>
+<td align="right">11</td>
+<td align="right">4</td>
 </tr>
 <tr class="even">
-<td align="left">UCEC</td>
-<td align="right">117</td>
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">part_cimlr</td>
+<td align="left">Integration</td>
+<td align="right">8</td>
+<td align="right">0.0000000</td>
+<td align="right">393</td>
+<td align="right">21</td>
+<td align="right">8</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">SNF</td>
+<td align="left">Integration</td>
+<td align="right">3</td>
+<td align="right">0.0334647</td>
+<td align="right">393</td>
+<td align="right">125</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">spectral</td>
+<td align="left">mu</td>
+<td align="right">3</td>
+<td align="right">0.0174310</td>
+<td align="right">393</td>
+<td align="right">60</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">cimlr</td>
+<td align="left">Integration</td>
+<td align="right">6</td>
+<td align="right">0.3185945</td>
+<td align="right">379</td>
+<td align="right">11</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">part_cimlr</td>
+<td align="left">Integration</td>
+<td align="right">3</td>
+<td align="right">0.2375456</td>
+<td align="right">393</td>
+<td align="right">57</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">SNF</td>
+<td align="left">Integration</td>
+<td align="right">8</td>
+<td align="right">0.0049814</td>
+<td align="right">393</td>
+<td align="right">35</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">spectral</td>
+<td align="left">mu</td>
+<td align="right">2</td>
+<td align="right">0.0124858</td>
+<td align="right">393</td>
+<td align="right">195</td>
+<td align="right">2</td>
 </tr>
 </tbody>
 </table>
 <ol start="2" style="list-style-type: decimal">
-<li><p>the gene expression data is not normalized; Very large counts in the data, presumably preprocess steps need to be done ;</p></li>
-<li><p>Using RRA to rank the features for visualization will give an imbalanced feature ranking, there the clusters sparate further away will dominant those top features;</p></li>
-<li><p>Use other source of data</p></li>
+<li>remove c: for each c of each method, if the min clusters size
+&lt;10, then we don’t regard c as a valid number and remove the
+clustering results of c for the method</li>
 </ol>
-<p><a href="http://firebrowse.org/" class="uri">http://firebrowse.org/</a></p>
-<p><a href="https://github.com/mariodeng/FirebrowseR" class="uri">https://github.com/mariodeng/FirebrowseR</a></p>
-<p>microRNA available tractable preprocess</p>
+<pre class="r"><code>## Cherry picking ----
+surv_tib_all_remove_c = readRDS(paste(res_dir, &quot;/&quot;, &quot;all_surv_clust_remove_c.rds&quot;, sep = &quot;&quot;)) # filter &lt; 10 clusters, with normalization, new mutation data
+
+surv_tib_check_remove_c = surv_tib_all_remove_c %&gt;%
+  ungroup() %&gt;%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %&gt;%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %&gt;%
+  # filter(min_clust_size &gt;= 10) %&gt;%
+  # filter(data_type == &quot;Integration&quot;) %&gt;%
+  dplyr::select(-c(data,tib)) %&gt;%
+  unnest(surv_pv) %&gt;%
+  arrange(cancer,method, surv_pv)
+
+surv_tib_check_minpv_remove_c = surv_tib_check_remove_c %&gt;%
+  nest(data = -c(cancer, method, kernel_type,data_type)) %&gt;%
+  mutate(data = map(data, function(dat){
+    dat = dat %&gt;%
+      filter(surv_pv == min(surv_pv))
+  })) %&gt;%
+  # filter(surv_pv&lt;=0.05) %&gt;%
+  unnest(data)
+
+knitr::kable(surv_tib_check_minpv_remove_c)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="14%" />
+<col width="14%" />
+<col width="13%" />
+<col width="3%" />
+<col width="12%" />
+<col width="14%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">cancer</th>
+<th align="left">kernel_type</th>
+<th align="left">data_type</th>
+<th align="left">method</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0079538</td>
+<td align="right">386</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">5</td>
+<td align="right">0.0434303</td>
+<td align="right">386</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">4</td>
+<td align="right">0.0000341</td>
+<td align="right">386</td>
+<td align="right">40</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0011477</td>
+<td align="right">386</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0008300</td>
+<td align="right">386</td>
+<td align="right">94</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">0.0042736</td>
+<td align="right">386</td>
+<td align="right">37</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0006979</td>
+<td align="right">386</td>
+<td align="right">187</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0009483</td>
+<td align="right">386</td>
+<td align="right">112</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0097378</td>
+<td align="right">386</td>
+<td align="right">166</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0111582</td>
+<td align="right">386</td>
+<td align="right">182</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1472965</td>
+<td align="right">386</td>
+<td align="right">172</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1876493</td>
+<td align="right">386</td>
+<td align="right">181</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">5</td>
+<td align="right">0.1684992</td>
+<td align="right">496</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.3877017</td>
+<td align="right">496</td>
+<td align="right">158</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">5</td>
+<td align="right">0.2600868</td>
+<td align="right">496</td>
+<td align="right">26</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.6704446</td>
+<td align="right">496</td>
+<td align="right">51</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0438140</td>
+<td align="right">496</td>
+<td align="right">60</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">7</td>
+<td align="right">0.1567684</td>
+<td align="right">496</td>
+<td align="right">49</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0111789</td>
+<td align="right">496</td>
+<td align="right">223</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0412736</td>
+<td align="right">496</td>
+<td align="right">239</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1855685</td>
+<td align="right">496</td>
+<td align="right">120</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4380489</td>
+<td align="right">496</td>
+<td align="right">164</td>
+</tr>
+<tr class="odd">
+<td align="left">BRCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4501700</td>
+<td align="right">496</td>
+<td align="right">172</td>
+</tr>
+<tr class="even">
+<td align="left">BRCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.5631562</td>
+<td align="right">496</td>
+<td align="right">167</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.1991560</td>
+<td align="right">176</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.2222594</td>
+<td align="right">176</td>
+<td align="right">13</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">5</td>
+<td align="right">0.2319179</td>
+<td align="right">176</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">4</td>
+<td align="right">0.0881312</td>
+<td align="right">176</td>
+<td align="right">31</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.2192399</td>
+<td align="right">176</td>
+<td align="right">33</td>
+</tr>
+<tr class="even">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0214721</td>
+<td align="right">176</td>
+<td align="right">48</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0551204</td>
+<td align="right">176</td>
+<td align="right">33</td>
+</tr>
+<tr class="even">
+<td align="left">CESC</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2954307</td>
+<td align="right">176</td>
+<td align="right">75</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.5167299</td>
+<td align="right">176</td>
+<td align="right">82</td>
+</tr>
+<tr class="even">
+<td align="left">CESC</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6809210</td>
+<td align="right">176</td>
+<td align="right">73</td>
+</tr>
+<tr class="odd">
+<td align="left">CESC</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6809210</td>
+<td align="right">176</td>
+<td align="right">73</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.7487870</td>
+<td align="right">198</td>
+<td align="right">13</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.9504605</td>
+<td align="right">198</td>
+<td align="right">14</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.3472904</td>
+<td align="right">198</td>
+<td align="right">33</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">5</td>
+<td align="right">0.5794777</td>
+<td align="right">198</td>
+<td align="right">24</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0876254</td>
+<td align="right">198</td>
+<td align="right">17</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">7</td>
+<td align="right">0.3363679</td>
+<td align="right">198</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0613766</td>
+<td align="right">198</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.1709652</td>
+<td align="right">198</td>
+<td align="right">56</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.3629109</td>
+<td align="right">198</td>
+<td align="right">63</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.7295917</td>
+<td align="right">198</td>
+<td align="right">40</td>
+</tr>
+<tr class="even">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.7587384</td>
+<td align="right">198</td>
+<td align="right">39</td>
+</tr>
+<tr class="odd">
+<td align="left">COAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.7891889</td>
+<td align="right">198</td>
+<td align="right">68</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0003930</td>
+<td align="right">207</td>
+<td align="right">26</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0003795</td>
+<td align="right">207</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0013952</td>
+<td align="right">207</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0000041</td>
+<td align="right">207</td>
+<td align="right">22</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0003055</td>
+<td align="right">207</td>
+<td align="right">45</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0000223</td>
+<td align="right">207</td>
+<td align="right">93</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0000332</td>
+<td align="right">207</td>
+<td align="right">95</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0006033</td>
+<td align="right">207</td>
+<td align="right">81</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0007549</td>
+<td align="right">207</td>
+<td align="right">76</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRC</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0432710</td>
+<td align="right">207</td>
+<td align="right">81</td>
+</tr>
+<tr class="even">
+<td align="left">KIRC</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0472607</td>
+<td align="right">207</td>
+<td align="right">80</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRP</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">4</td>
+<td align="right">0.0000000</td>
+<td align="right">148</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="left">KIRP</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">4</td>
+<td align="right">0.0000000</td>
+<td align="right">148</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRP</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0000000</td>
+<td align="right">148</td>
+<td align="right">48</td>
+</tr>
+<tr class="even">
+<td align="left">KIRP</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0000000</td>
+<td align="right">148</td>
+<td align="right">49</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRP</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0374095</td>
+<td align="right">148</td>
+<td align="right">58</td>
+</tr>
+<tr class="even">
+<td align="left">KIRP</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0520874</td>
+<td align="right">148</td>
+<td align="right">59</td>
+</tr>
+<tr class="odd">
+<td align="left">KIRP</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1730944</td>
+<td align="right">148</td>
+<td align="right">63</td>
+</tr>
+<tr class="even">
+<td align="left">KIRP</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1872501</td>
+<td align="right">148</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.8097889</td>
+<td align="right">191</td>
+<td align="right">16</td>
+</tr>
+<tr class="even">
+<td align="left">LIHC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.4764677</td>
+<td align="right">191</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.5707850</td>
+<td align="right">191</td>
+<td align="right">51</td>
+</tr>
+<tr class="even">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">7</td>
+<td align="right">0.1475693</td>
+<td align="right">191</td>
+<td align="right">15</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.2492566</td>
+<td align="right">191</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2405801</td>
+<td align="right">191</td>
+<td align="right">80</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2517766</td>
+<td align="right">191</td>
+<td align="right">79</td>
+</tr>
+<tr class="even">
+<td align="left">LIHC</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2941819</td>
+<td align="right">191</td>
+<td align="right">54</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4077973</td>
+<td align="right">191</td>
+<td align="right">74</td>
+</tr>
+<tr class="even">
+<td align="left">LIHC</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4319981</td>
+<td align="right">191</td>
+<td align="right">94</td>
+</tr>
+<tr class="odd">
+<td align="left">LIHC</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6071940</td>
+<td align="right">191</td>
+<td align="right">94</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">4</td>
+<td align="right">0.0000022</td>
+<td align="right">418</td>
+<td align="right">70</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0004980</td>
+<td align="right">418</td>
+<td align="right">131</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">7</td>
+<td align="right">0.0000006</td>
+<td align="right">418</td>
+<td align="right">47</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0000274</td>
+<td align="right">418</td>
+<td align="right">58</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0000027</td>
+<td align="right">418</td>
+<td align="right">55</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0010805</td>
+<td align="right">418</td>
+<td align="right">58</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0001337</td>
+<td align="right">418</td>
+<td align="right">175</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0018826</td>
+<td align="right">418</td>
+<td align="right">102</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.3524091</td>
+<td align="right">418</td>
+<td align="right">187</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.3861952</td>
+<td align="right">418</td>
+<td align="right">176</td>
+</tr>
+<tr class="even">
+<td align="left">LUAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6457204</td>
+<td align="right">418</td>
+<td align="right">179</td>
+</tr>
+<tr class="odd">
+<td align="left">LUAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6859333</td>
+<td align="right">418</td>
+<td align="right">205</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0145708</td>
+<td align="right">176</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">PCPG</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">5</td>
+<td align="right">0.3512743</td>
+<td align="right">176</td>
+<td align="right">22</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.3929684</td>
+<td align="right">176</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">PCPG</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">5</td>
+<td align="right">0.0000053</td>
+<td align="right">176</td>
+<td align="right">16</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">4</td>
+<td align="right">0.3225076</td>
+<td align="right">176</td>
+<td align="right">25</td>
+</tr>
+<tr class="odd">
+<td align="left">PCPG</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1250173</td>
+<td align="right">176</td>
+<td align="right">84</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1616079</td>
+<td align="right">176</td>
+<td align="right">80</td>
+</tr>
+<tr class="odd">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6443480</td>
+<td align="right">176</td>
+<td align="right">84</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6567756</td>
+<td align="right">176</td>
+<td align="right">81</td>
+</tr>
+<tr class="odd">
+<td align="left">PCPG</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6823688</td>
+<td align="right">176</td>
+<td align="right">80</td>
+</tr>
+<tr class="even">
+<td align="left">PCPG</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.8817773</td>
+<td align="right">176</td>
+<td align="right">79</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.5210545</td>
+<td align="right">328</td>
+<td align="right">40</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.5314392</td>
+<td align="right">328</td>
+<td align="right">37</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.1539686</td>
+<td align="right">328</td>
+<td align="right">99</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.5185301</td>
+<td align="right">328</td>
+<td align="right">76</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.1256097</td>
+<td align="right">328</td>
+<td align="right">101</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.2222851</td>
+<td align="right">328</td>
+<td align="right">107</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0423666</td>
+<td align="right">328</td>
+<td align="right">134</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1771742</td>
+<td align="right">328</td>
+<td align="right">141</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.5500316</td>
+<td align="right">328</td>
+<td align="right">153</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.6222428</td>
+<td align="right">328</td>
+<td align="right">143</td>
+</tr>
+<tr class="odd">
+<td align="left">PRAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.7487794</td>
+<td align="right">328</td>
+<td align="right">133</td>
+</tr>
+<tr class="even">
+<td align="left">PRAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.7599579</td>
+<td align="right">328</td>
+<td align="right">133</td>
+</tr>
+<tr class="odd">
+<td align="left">SARC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.6171194</td>
+<td align="right">221</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="left">SARC</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">4</td>
+<td align="right">0.0016501</td>
+<td align="right">221</td>
+<td align="right">41</td>
+</tr>
+<tr class="odd">
+<td align="left">SARC</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0029527</td>
+<td align="right">221</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">SARC</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0005911</td>
+<td align="right">221</td>
+<td align="right">99</td>
+</tr>
+<tr class="odd">
+<td align="left">SARC</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0013030</td>
+<td align="right">221</td>
+<td align="right">98</td>
+</tr>
+<tr class="even">
+<td align="left">SARC</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1551959</td>
+<td align="right">221</td>
+<td align="right">59</td>
+</tr>
+<tr class="odd">
+<td align="left">SARC</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4495668</td>
+<td align="right">221</td>
+<td align="right">75</td>
+</tr>
+<tr class="even">
+<td align="left">SARC</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.4530267</td>
+<td align="right">221</td>
+<td align="right">76</td>
+</tr>
+<tr class="odd">
+<td align="left">SARC</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.8506840</td>
+<td align="right">221</td>
+<td align="right">85</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0078590</td>
+<td align="right">226</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0103953</td>
+<td align="right">226</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0042613</td>
+<td align="right">226</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0409760</td>
+<td align="right">226</td>
+<td align="right">54</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0225705</td>
+<td align="right">226</td>
+<td align="right">28</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0346535</td>
+<td align="right">226</td>
+<td align="right">70</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0020340</td>
+<td align="right">226</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0043765</td>
+<td align="right">226</td>
+<td align="right">60</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0310619</td>
+<td align="right">226</td>
+<td align="right">71</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0789786</td>
+<td align="right">226</td>
+<td align="right">69</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1343780</td>
+<td align="right">226</td>
+<td align="right">67</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2051137</td>
+<td align="right">226</td>
+<td align="right">66</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">4</td>
+<td align="right">0.6627619</td>
+<td align="right">393</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.6679215</td>
+<td align="right">393</td>
+<td align="right">105</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">8</td>
+<td align="right">0.0000000</td>
+<td align="right">393</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.2375456</td>
+<td align="right">393</td>
+<td align="right">57</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">0.0049814</td>
+<td align="right">393</td>
+<td align="right">35</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0334647</td>
+<td align="right">393</td>
+<td align="right">125</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0124858</td>
+<td align="right">393</td>
+<td align="right">195</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0136391</td>
+<td align="right">393</td>
+<td align="right">87</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0174310</td>
+<td align="right">393</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0434040</td>
+<td align="right">393</td>
+<td align="right">97</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.5653252</td>
+<td align="right">393</td>
+<td align="right">144</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.8890871</td>
+<td align="right">393</td>
+<td align="right">162</td>
+</tr>
+</tbody>
+</table>
+<p>Select BLCA, STAD and THCA</p>
+<pre class="r"><code>select_tib = surv_tib_check_minpv_remove_c %&gt;% 
+  filter(cancer %in% c(&quot;BLCA&quot;,&quot;STAD&quot;,&quot;THCA&quot;)) %&gt;% 
+  arrange(cancer, kernel_type, method)
+
+knitr::kable(select_tib, digits = 32)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+<col width="3%" />
+<col width="15%" />
+<col width="14%" />
+<col width="17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">cancer</th>
+<th align="left">kernel_type</th>
+<th align="left">data_type</th>
+<th align="left">method</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">6</td>
+<td align="right">7.953760e-03</td>
+<td align="right">386</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">4</td>
+<td align="right">3.408908e-05</td>
+<td align="right">386</td>
+<td align="right">40</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">8.300319e-04</td>
+<td align="right">386</td>
+<td align="right">94</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">9.482885e-04</td>
+<td align="right">386</td>
+<td align="right">112</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">1.115816e-02</td>
+<td align="right">386</td>
+<td align="right">182</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">1.876493e-01</td>
+<td align="right">386</td>
+<td align="right">181</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">5</td>
+<td align="right">4.343034e-02</td>
+<td align="right">386</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">1.147678e-03</td>
+<td align="right">386</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">4.273615e-03</td>
+<td align="right">386</td>
+<td align="right">37</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">6.978511e-04</td>
+<td align="right">386</td>
+<td align="right">187</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">9.737839e-03</td>
+<td align="right">386</td>
+<td align="right">166</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">1.472965e-01</td>
+<td align="right">386</td>
+<td align="right">172</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">1.039526e-02</td>
+<td align="right">226</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">4.261311e-03</td>
+<td align="right">226</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">2.257051e-02</td>
+<td align="right">226</td>
+<td align="right">28</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">2.033965e-03</td>
+<td align="right">226</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">7.897863e-02</td>
+<td align="right">226</td>
+<td align="right">69</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">2.051137e-01</td>
+<td align="right">226</td>
+<td align="right">66</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">7.858983e-03</td>
+<td align="right">226</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">4.097604e-02</td>
+<td align="right">226</td>
+<td align="right">54</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">3.465353e-02</td>
+<td align="right">226</td>
+<td align="right">70</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">4.376473e-03</td>
+<td align="right">226</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">3.106194e-02</td>
+<td align="right">226</td>
+<td align="right">71</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">1.343780e-01</td>
+<td align="right">226</td>
+<td align="right">67</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">4</td>
+<td align="right">6.627619e-01</td>
+<td align="right">393</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">8</td>
+<td align="right">9.558449e-10</td>
+<td align="right">393</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">3.346471e-02</td>
+<td align="right">393</td>
+<td align="right">125</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">1.743099e-02</td>
+<td align="right">393</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">4.340404e-02</td>
+<td align="right">393</td>
+<td align="right">97</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">8.890871e-01</td>
+<td align="right">393</td>
+<td align="right">162</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">6.679215e-01</td>
+<td align="right">393</td>
+<td align="right">105</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">2.375456e-01</td>
+<td align="right">393</td>
+<td align="right">57</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">4.981444e-03</td>
+<td align="right">393</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">1.248577e-02</td>
+<td align="right">393</td>
+<td align="right">195</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">1.363914e-02</td>
+<td align="right">393</td>
+<td align="right">87</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">5.653252e-01</td>
+<td align="right">393</td>
+<td align="right">144</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="visualization" class="section level1">
+<h1>Visualization</h1>
+<div id="survival-curv" class="section level2">
+<h2>survival curv</h2>
+<p>BLCA</p>
+<pre class="r"><code>check_tib = select_tib %&gt;% 
+  filter(cancer == &quot;BLCA&quot;)
+knitr::kable(check_tib)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="14%" />
+<col width="14%" />
+<col width="13%" />
+<col width="3%" />
+<col width="12%" />
+<col width="14%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">cancer</th>
+<th align="left">kernel_type</th>
+<th align="left">data_type</th>
+<th align="left">method</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0079538</td>
+<td align="right">386</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">4</td>
+<td align="right">0.0000341</td>
+<td align="right">386</td>
+<td align="right">40</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0008300</td>
+<td align="right">386</td>
+<td align="right">94</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0009483</td>
+<td align="right">386</td>
+<td align="right">112</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0111582</td>
+<td align="right">386</td>
+<td align="right">182</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1876493</td>
+<td align="right">386</td>
+<td align="right">181</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">5</td>
+<td align="right">0.0434303</td>
+<td align="right">386</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0011477</td>
+<td align="right">386</td>
+<td align="right">64</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">0.0042736</td>
+<td align="right">386</td>
+<td align="right">37</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0006979</td>
+<td align="right">386</td>
+<td align="right">187</td>
+</tr>
+<tr class="odd">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0097378</td>
+<td align="right">386</td>
+<td align="right">166</td>
+</tr>
+<tr class="even">
+<td align="left">BLCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1472965</td>
+<td align="right">386</td>
+<td align="right">172</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>surv_tib = surv_tib_all_remove_c %&gt;% 
+  filter(cancer == &quot;BLCA&quot;) %&gt;% 
+  dplyr::select(-data) %&gt;% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != &quot;Integration&quot;),
+                                 facet.by = c(&quot;kernel_type&quot;, &quot;data_type&quot;))+
+    ggtitle(paste(&quot;Single data survival curve for BLCA&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/070ad3a1ce3ac8757cf3679bb7164645eb057f99/docs/figure/TCGA_pancancer_survival.rmd/unnamed-chunk-6-1.png" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>surv_tib_integ = surv_tib %&gt;% 
+  filter(data_type == &quot;Integration&quot;) %&gt;%
+  group_by(cancer, kernel_type, method) %&gt;% 
+  unnest(surv_pv) %&gt;% 
+  filter(surv_pv == min(surv_pv)) %&gt;% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c(&quot;kernel_type&quot;, &quot;method&quot;))+
+    ggtitle(paste(&quot;Integrated data survival curve for BLCA&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>expr_cl = surv_tib %&gt;% 
+  filter(kernel_type == &quot;diff_kernel&quot; &amp; data_type == &quot;expr&quot;) %&gt;% pull(cluster)
+me_cl = surv_tib %&gt;% 
+  filter(kernel_type == &quot;diff_kernel&quot; &amp; data_type == &quot;me&quot;) %&gt;% pull(cluster)
+mu_cl = surv_tib %&gt;% 
+  filter(kernel_type == &quot;diff_kernel&quot; &amp; data_type == &quot;mu&quot;) %&gt;% pull(cluster)
+diff_part_cl = surv_tib %&gt;% 
+  filter(kernel_type == &quot;diff_kernel&quot; &amp; method == &quot;part_cimlr&quot; &amp; c == 4) %&gt;% pull(cluster)
+
+cluster_tib = tibble(expr_cl = expr_cl,me_cl = me_cl, mu_cl = mu_cl,diff_part_cl = diff_part_cl) 
+cluster_tib %&gt;% 
+  group_by(mu_cl, diff_part_cl) %&gt;% 
+  summarise(n = n()) %&gt;% 
+  mutate(freq = n/sum(n))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;mu_cl&#39;. You can override using the
+`.groups` argument.</code></pre>
+<pre><code># A tibble: 7 × 4
+# Groups:   mu_cl [2]
+  mu_cl diff_part_cl     n   freq
+  &lt;fct&gt; &lt;fct&gt;        &lt;int&gt;  &lt;dbl&gt;
+1 1     1              142 0.518 
+2 1     2               98 0.358 
+3 1     4               34 0.124 
+4 2     1               21 0.188 
+5 2     2               14 0.125 
+6 2     3               71 0.634 
+7 2     4                6 0.0536</code></pre>
+<pre class="r"><code>cluster_tib %&gt;% 
+  group_by(me_cl, diff_part_cl) %&gt;% 
+  summarise(n = n()) %&gt;% 
+  mutate(freq = n/sum(n))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;me_cl&#39;. You can override using the
+`.groups` argument.</code></pre>
+<pre><code># A tibble: 7 × 4
+# Groups:   me_cl [2]
+  me_cl diff_part_cl     n   freq
+  &lt;fct&gt; &lt;fct&gt;        &lt;int&gt;  &lt;dbl&gt;
+1 1     1               16 0.0884
+2 1     2              112 0.619 
+3 1     3               40 0.221 
+4 1     4               13 0.0718
+5 2     1              147 0.717 
+6 2     3               31 0.151 
+7 2     4               27 0.132 </code></pre>
+<pre class="r"><code>cluster_tib %&gt;% 
+  group_by(expr_cl, diff_part_cl) %&gt;% 
+  summarise(n = n()) %&gt;% 
+  mutate(freq = n/sum(n))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;expr_cl&#39;. You can override using the
+`.groups` argument.</code></pre>
+<pre><code># A tibble: 8 × 4
+# Groups:   expr_cl [2]
+  expr_cl diff_part_cl     n    freq
+  &lt;fct&gt;   &lt;fct&gt;        &lt;int&gt;   &lt;dbl&gt;
+1 1       1               33 0.181  
+2 1       2               80 0.440  
+3 1       3               31 0.170  
+4 1       4               38 0.209  
+5 2       1              130 0.637  
+6 2       2               32 0.157  
+7 2       3               40 0.196  
+8 2       4                2 0.00980</code></pre>
+<p>STAD</p>
+<pre class="r"><code>check_tib = select_tib %&gt;% 
+  filter(cancer == &quot;STAD&quot;)
+knitr::kable(check_tib)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="14%" />
+<col width="14%" />
+<col width="13%" />
+<col width="3%" />
+<col width="12%" />
+<col width="14%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">cancer</th>
+<th align="left">kernel_type</th>
+<th align="left">data_type</th>
+<th align="left">method</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0103953</td>
+<td align="right">226</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">6</td>
+<td align="right">0.0042613</td>
+<td align="right">226</td>
+<td align="right">20</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">6</td>
+<td align="right">0.0225705</td>
+<td align="right">226</td>
+<td align="right">28</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0020340</td>
+<td align="right">226</td>
+<td align="right">56</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0789786</td>
+<td align="right">226</td>
+<td align="right">69</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.2051137</td>
+<td align="right">226</td>
+<td align="right">66</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0078590</td>
+<td align="right">226</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.0409760</td>
+<td align="right">226</td>
+<td align="right">54</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0346535</td>
+<td align="right">226</td>
+<td align="right">70</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0043765</td>
+<td align="right">226</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0310619</td>
+<td align="right">226</td>
+<td align="right">71</td>
+</tr>
+<tr class="even">
+<td align="left">STAD</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.1343780</td>
+<td align="right">226</td>
+<td align="right">67</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>surv_tib = surv_tib_all_remove_c %&gt;% 
+  filter(cancer == &quot;STAD&quot;) %&gt;% 
+  dplyr::select(-data) %&gt;% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != &quot;Integration&quot;),
+                                 facet.by = c(&quot;kernel_type&quot;, &quot;data_type&quot;))+
+    ggtitle(paste(&quot;Single data survival curve for STAD&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>surv_tib_integ = surv_tib %&gt;% 
+  filter(data_type == &quot;Integration&quot;) %&gt;%
+  group_by(cancer, kernel_type, method) %&gt;% 
+  unnest(surv_pv) %&gt;% 
+  filter(surv_pv == min(surv_pv)) %&gt;% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c(&quot;kernel_type&quot;, &quot;method&quot;))+
+    ggtitle(paste(&quot;Integrated data survival curve for STAD&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>THCA</p>
+<pre class="r"><code>check_tib = select_tib %&gt;% 
+  filter(cancer == &quot;THCA&quot;)
+knitr::kable(check_tib)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="14%" />
+<col width="14%" />
+<col width="13%" />
+<col width="3%" />
+<col width="12%" />
+<col width="14%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">cancer</th>
+<th align="left">kernel_type</th>
+<th align="left">data_type</th>
+<th align="left">method</th>
+<th align="right">c</th>
+<th align="right">surv_pv</th>
+<th align="right">sample_size</th>
+<th align="right">min_clust_size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">4</td>
+<td align="right">0.6627619</td>
+<td align="right">393</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">8</td>
+<td align="right">0.0000000</td>
+<td align="right">393</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">3</td>
+<td align="right">0.0334647</td>
+<td align="right">393</td>
+<td align="right">125</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0174310</td>
+<td align="right">393</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0434040</td>
+<td align="right">393</td>
+<td align="right">97</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">diff_kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.8890871</td>
+<td align="right">393</td>
+<td align="right">162</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">cimlr</td>
+<td align="right">3</td>
+<td align="right">0.6679215</td>
+<td align="right">393</td>
+<td align="right">105</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">part_cimlr</td>
+<td align="right">3</td>
+<td align="right">0.2375456</td>
+<td align="right">393</td>
+<td align="right">57</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">Integration</td>
+<td align="left">SNF</td>
+<td align="right">8</td>
+<td align="right">0.0049814</td>
+<td align="right">393</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">mu</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.0124858</td>
+<td align="right">393</td>
+<td align="right">195</td>
+</tr>
+<tr class="odd">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">me</td>
+<td align="left">spectral</td>
+<td align="right">3</td>
+<td align="right">0.0136391</td>
+<td align="right">393</td>
+<td align="right">87</td>
+</tr>
+<tr class="even">
+<td align="left">THCA</td>
+<td align="left">kernel</td>
+<td align="left">expr</td>
+<td align="left">spectral</td>
+<td align="right">2</td>
+<td align="right">0.5653252</td>
+<td align="right">393</td>
+<td align="right">144</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>surv_tib = surv_tib_all_remove_c %&gt;% 
+  filter(cancer == &quot;THCA&quot;) %&gt;% 
+  dplyr::select(-data) %&gt;% 
+  unnest(tib)
+
+# single:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                         data = surv_tib),
+                                 data = subset(surv_tib, data_type != &quot;Integration&quot;),
+                                 facet.by = c(&quot;kernel_type&quot;, &quot;data_type&quot;))+
+    ggtitle(paste(&quot;Single data survival curve for THCA&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/070ad3a1ce3ac8757cf3679bb7164645eb057f99/docs/figure/TCGA_pancancer_survival.rmd/unnamed-chunk-9-1.png" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>surv_tib_integ = surv_tib %&gt;% 
+  filter(data_type == &quot;Integration&quot;) %&gt;%
+  group_by(cancer, kernel_type, method) %&gt;% 
+  unnest(surv_pv) %&gt;% 
+  filter(surv_pv == min(surv_pv)) %&gt;% 
+  ungroup()
+  
+# Integrated:
+ggsurvplot_facet(survfit(Surv(days_to_death, censoring)~cluster,
+                                          data = surv_tib),
+                                  data = surv_tib_integ,
+                                  facet.by = c(&quot;kernel_type&quot;, &quot;method&quot;))+
+    ggtitle(paste(&quot;Integrated data survival curve for THCA&quot;))</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-2">
+Past versions of unnamed-chunk-9-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/070ad3a1ce3ac8757cf3679bb7164645eb057f99/docs/figure/TCGA_pancancer_survival.rmd/unnamed-chunk-9-2.png" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="feature-selection-for-visualization" class="section level2">
+<h2>Feature selection for visualization</h2>
+<p>Using Laplacian score and robust rank aggregation for feature
+picking;</p>
+<p>i.e., we choose the features consistent with the similarity matrix
+learned from diff-part-cimlr to visualize.</p>
+<p>In detail,the laplacian score is calculated as <span
+class="math inline">\(\frac{f^TSf}{f^Tf}\)</span>, the larger the score,
+the more consistent feature f is to the similarity measures in S; Then
+we use robust rank aggregation for feature ranking. Specifically, we use
+100 80% BS samples to get the feature score vectors, and then we rank
+within each BS samples, composing of a <span
+class="math inline">\(100\times D_s\)</span> feature rank matrix, with
+ith column corresponding to the rank of feature i within 100 BS samples,
+denoted as <span class="math inline">\(r_i\)</span>; For <span
+class="math inline">\(r_i\)</span>, we further rank the 100 BS samples
+to get <span class="math inline">\(r_{i,(1)}\leq r_{i,(2)} \leq \cdots
+\leq r_{i,(100)}\)</span>, and for each order statistics, we can
+calculate the probability of the order stat under the uniform null
+distribution is smaller than the observed kth order statistics, and
+choose the smallest probability as a score of the gene. The smaller the
+score, the more likely the gene is informative, or to say having a
+non-null distribution of the rank among the BS samples;</p>
+<pre class="r"><code># pick_dir = &quot;/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap_upMu_nonorm/pick&quot;
+# path_check_tib = readRDS(paste(pick_dir, &quot;/path_check_tib.rds&quot;,sep = &quot;&quot;))</code></pre>
+<pre class="r"><code># # plot_dir = &quot;./analysis/docs/figure/pancancer_plots&quot;
+# # for(i in 1:nrow(path_check_tib)){
+# #   cancer_cur = path_check_tib$cancer[[i]]
+# #   tb = knitr::kable(path_check_tib$check_tib[[i]], digits = 32)
+# #   print(tb)
+# #   g_ls = readRDS(path_check_tib$plot_path[[i]])
+#   # plot_dir_cur = plot_dir
+#   # if(!file.exists(plot_dir_cur)){dir.create(plot_dir_cur)}
+#   # &quot;surv_plot&quot;
+#   print(g_ls$g_sing_surv)
+#   # ggsave(plot = g_ls$g_sing_surv, filename = paste(plot_dir_cur, &quot;/&quot;, cancer_cur, &quot;_sing_surv.png&quot;, sep = &quot;&quot;),
+#   #        width = 10, height = 8)
+#   print(g_ls$g_integ_surv)
+#   # ggsave(plot = g_ls$g_integ_surv, filename = paste(plot_dir_cur, &quot;/&quot;, cancer_cur, &quot;_integ_surv.png&quot;, sep = &quot;&quot;),
+#   #        width = 10, height = 8)
+#   # &quot;heatmap for gene expr&quot;
+#   print(g_ls$g_expr)
+#   # ggsave(plot = g_ls$g_expr, filename = paste(plot_dir_cur, &quot;/&quot;, cancer_cur, &quot;_expr_heat.png&quot;, sep = &quot;&quot;),
+#   #        width = 12, height = 8)
+#   # &quot;heatmap for methylation&quot;
+#   print(g_ls$g_me)
+#   # ggsave(plot = g_ls$g_me, filename = paste(plot_dir_cur, &quot;/&quot;, cancer_cur, &quot;_me_heat.png&quot;, sep = &quot;&quot;),
+#   #        width = 12, height = 8)
+#   # &quot;heatmap for mutation&quot;
+#   print(g_ls$g_mu)
+#   # ggsave(plot = g_ls$g_mu, filename = paste(plot_dir_cur, &quot;/&quot;, cancer_cur, &quot;_mu_heat.png&quot;, sep = &quot;&quot;),
+#   #        width = 12, height = 8)
+#   
+# }</code></pre>
+<p>Focused on the STAD/LUAD/KIRP/PRAD;</p>
+</div>
+</div>
+<div id="write-up-paragraphs" class="section level1">
+<h1>Write up paragraphs</h1>
+<p>We perform cancer subtyping analysis on four types of cancer: LUAD,
+STAD, KIRP and PRAD. Three tyoes of omics data for each cancer types are
+considered: gene expression data, DNA methylation data and the somtic
+mutation data. [Add] All tumor sampels are donwloaded from the TCGA
+websites and the initial sample size are</p>
+<p>All 3 data types pass the outlier removal and imputation steps.
+Specifically, samples with more than 30% missings among featuers for any
+dat types are first removed as outlier samples, then the features with
+more than 30% missing are removed. For the remaining missins in the gene
+expression and the methylation data, we use K-nearest-neighbor
+imputation to complete the data matrices. For DNA methylation,we further
+removed CpG sites on sex chromosomes and CpG sites overlapping with
+known single nucleotide polymorphisms and also corrected type I/II probe
+bias using wateRmelon (Pidsley et al., 2013).</p>
+<p>To pick the number of clusters for each data type, we focus on the
+following criteria: Firstly, the number of each clusters should be
+larger than 10, then we pick the number of clusters which gives the most
+significant survival differences</p>
+</div>
+<div id="potential-problems-in-analysis" class="section level1">
+<h1>Potential problems in analysis</h1>
+<ol style="list-style-type: decimal">
+<li>No normalization makes better performance</li>
+</ol>
+<p>the gene expression data is not normalized; Very large counts in the
+data, presumably preprocess steps need to be done;</p>
+<p>Our method will give small cluster when there is extreme block in the
+similarity matrix, which is tend to show out when performing
+normalization</p>
+<pre class="r"><code># See details in &quot;../code/Code_collection/TCGA_survival_pan_cancer_pipeline/res_explore.R&quot;
+
+load(&quot;data/pancancer_smaller_cluster_explore.Rdata&quot;)
+
+table(res_part$cluster)</code></pre>
+<pre><code>
+  1   2   3   4 
+142 186  50   8 </code></pre>
+<pre class="r"><code>table(res_cim$cluster)</code></pre>
+<pre><code>
+  1   2   3   4 
+120 120  71  75 </code></pre>
+<pre class="r"><code>table(res_snf$cluster)</code></pre>
+<pre><code>
+  1   2   3   4 
+ 89  68 136  93 </code></pre>
+<pre class="r"><code>heatmap_gg(kernel[sort(res_part$cluster, index.return = T)$ix,sort(res_part$cluster, index.return = T)$ix],&quot;dist sub aligned by cluster ind&quot;)</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/yuqimiao/DEP_SIMLR/blob/070ad3a1ce3ac8757cf3679bb7164645eb057f99/docs/figure/TCGA_pancancer_survival.rmd/unnamed-chunk-12-1.png" target="_blank">070ad3a</a>
+</td>
+<td>
+yuqimiao
+</td>
+<td>
+2022-11-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>heatmap_gg(kernel_st[sort(res_part$cluster, index.return = T)$ix,sort(res_part$cluster, index.return = T)$ix],&quot;standard dist sub aligned by cluster ind&quot;)</code></pre>
+<p><img src="figure/TCGA_pancancer_survival.rmd/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>res_dir = &quot;/Volumes/sw2206/yuqi/data_20220308/pancancer_output/alpha_0.8_eigengap_upMu&quot; # new mutation data, with normalization
+surv_tib_all = readRDS(paste(res_dir, &quot;/&quot;, &quot;all_surv_clust_tib.rds&quot;, sep = &quot;&quot;))
+
+surv_tib_check = surv_tib_all %&gt;%
+  mutate(sample_size = map_dbl(tib, function(tib) nrow(tib))) %&gt;%
+  mutate(min_clust_size = map_dbl(tib, function(tib){
+    min(table(tib$cluster))
+  })) %&gt;%
+  # filter(min_clust_size &gt; 10) %&gt;%
+  filter(data_type == &quot;Integration&quot;) %&gt;%
+  dplyr::select(-c(data,tib)) %&gt;%
+  filter(surv_pv&lt;=0.05) %&gt;%
+  unnest(surv_pv) %&gt;%
+  ungroup() %&gt;%
+  arrange(cancer,surv_pv)
+
+#
+# surv_tib_check %&gt;%
+#   filter(method == &quot;part_cimlr&quot;) %&gt;%
+#   filter()</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Choosing number of clusters:</li>
+</ol>
+<p>LUAD: 7: kernel&gt;diff_kernel</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Hyperparameter justification?</li>
+</ol>
+<p>In diffusion: alpha: Find literature regarding the RWR parameter
+choosing number of layers for diffusion;</p>
+<p>In optimization: rho, the importance of the integrated data,
+currently as 1</p>
+<ol start="0" style="list-style-type: decimal">
+<li>Use other source of data</li>
+</ol>
+<p><a href="http://firebrowse.org/"
+class="uri">http://firebrowse.org/</a></p>
+<p><a href="https://github.com/mariodeng/FirebrowseR"
+class="uri">https://github.com/mariodeng/FirebrowseR</a> But the
+methylation data are genewise aggregation, not applicable microRNA
+available</p>
+<p>tractable preprocess</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.2 (2019-12-12)
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
-Running under: macOS  10.16
+<pre><code>R version 4.2.1 (2022-06-23)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur ... 10.16
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -827,41 +3719,52 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] survminer_0.4.9 ggpubr_0.4.0    MASS_7.3-51.5   flexsurv_1.1.1 
- [5] survival_3.1-11 forcats_0.5.0   stringr_1.4.0   dplyr_1.0.7    
- [9] purrr_0.3.4     readr_1.3.1     tidyr_1.1.3     tibble_3.1.3   
-[13] ggplot2_3.3.5   tidyverse_1.3.0
+ [1] reshape2_1.4.4    patchwork_1.1.2   plot.matrix_1.6.2 survminer_0.4.9  
+ [5] ggpubr_0.4.0      MASS_7.3-58.1     flexsurv_2.2      survival_3.4-0   
+ [9] forcats_0.5.2     stringr_1.4.1     dplyr_1.0.10      purrr_0.3.4      
+[13] readr_2.1.3       tidyr_1.2.1       tibble_3.1.8      ggplot2_3.3.6    
+[17] tidyverse_1.3.2   workflowr_1.7.0  
 
 loaded via a namespace (and not attached):
- [1] fs_1.5.0           lubridate_1.7.8    RColorBrewer_1.1-2 httr_1.4.2        
- [5] rprojroot_2.0.2    tools_3.6.2        backports_1.2.1    utf8_1.2.2        
- [9] R6_2.5.0           DBI_1.1.0          colorspace_2.0-2   withr_2.4.2       
-[13] gridExtra_2.3      tidyselect_1.1.1   curl_4.3           compiler_3.6.2    
-[17] git2r_0.26.1       cli_3.0.1          rvest_0.3.5        xml2_1.3.2        
-[21] labeling_0.4.2     scales_1.1.1       survMisc_0.5.5     mvtnorm_1.1-2     
-[25] quadprog_1.5-8     digest_0.6.27      foreign_0.8-76     rmarkdown_2.1     
-[29] rio_0.5.16         pkgconfig_2.0.3    htmltools_0.5.1.1  highr_0.8         
-[33] dbplyr_1.4.2       rlang_0.4.11       readxl_1.3.1       rstudioapi_0.13   
-[37] farver_2.1.0       generics_0.1.0     zoo_1.8-9          jsonlite_1.7.2    
-[41] zip_2.0.4          car_3.0-7          magrittr_2.0.1     Matrix_1.2-18     
-[45] Rcpp_1.0.8.3       munsell_0.5.0      fansi_0.5.0        abind_1.4-5       
-[49] lifecycle_1.0.0    stringi_1.5.3      yaml_2.2.1         mstate_0.2.12     
-[53] carData_3.0-3      grid_3.6.2         promises_1.2.0.1   crayon_1.4.1      
-[57] lattice_0.20-41    cowplot_1.0.0      haven_2.3.1        splines_3.6.2     
-[61] hms_1.1.0          knitr_1.32         pillar_1.6.2       ggsignif_0.6.0    
-[65] reprex_0.3.0       glue_1.4.2         evaluate_0.14      data.table_1.13.6 
-[69] modelr_0.1.6       deSolve_1.28       vctrs_0.3.8        httpuv_1.5.5      
-[73] cellranger_1.1.0   gtable_0.3.0       muhaz_1.2.6.1      km.ci_0.5-2       
-[77] assertthat_0.2.1   xfun_0.22          openxlsx_4.1.4     xtable_1.8-4      
-[81] broom_0.7.6        rstatix_0.7.0      later_1.1.0.1      KMsurv_0.1-5      
-[85] workflowr_1.6.2    ellipsis_0.3.2    </code></pre>
+ [1] googledrive_2.0.0   colorspace_2.0-3    ggsignif_0.6.4     
+ [4] ellipsis_0.3.2      rprojroot_2.0.3     fs_1.5.2           
+ [7] rstudioapi_0.14     farver_2.1.1        fansi_1.0.3        
+[10] mvtnorm_1.1-3       lubridate_1.8.0     xml2_1.3.3         
+[13] splines_4.2.1       cachem_1.0.6        knitr_1.40         
+[16] jsonlite_1.8.2      broom_1.0.1         km.ci_0.5-6        
+[19] dbplyr_2.2.1        compiler_4.2.1      httr_1.4.4         
+[22] backports_1.4.1     assertthat_0.2.1    Matrix_1.5-1       
+[25] fastmap_1.1.0       gargle_1.2.1        cli_3.4.1          
+[28] later_1.3.0         htmltools_0.5.3     tools_4.2.1        
+[31] gtable_0.3.1        glue_1.6.2          Rcpp_1.0.9         
+[34] carData_3.0-5       cellranger_1.1.0    jquerylib_0.1.4    
+[37] vctrs_0.5.0         xfun_0.33           ps_1.7.1           
+[40] rvest_1.0.3         lifecycle_1.0.3     statmod_1.4.37     
+[43] rstatix_0.7.0       googlesheets4_1.0.1 muhaz_1.2.6.4      
+[46] getPass_0.2-2       zoo_1.8-11          scales_1.2.1       
+[49] hms_1.1.2           promises_1.2.0.1    yaml_2.3.5         
+[52] gridExtra_2.3       KMsurv_0.1-5        sass_0.4.2         
+[55] stringi_1.7.8       highr_0.9           rlang_1.0.6        
+[58] pkgconfig_2.0.3     evaluate_0.16       lattice_0.20-45    
+[61] labeling_0.4.2      processx_3.7.0      tidyselect_1.2.0   
+[64] deSolve_1.34        plyr_1.8.7          magrittr_2.0.3     
+[67] R6_2.5.1            generics_0.1.3      DBI_1.1.3          
+[70] pillar_1.8.1        haven_2.5.1         whisker_0.4        
+[73] withr_2.5.0         abind_1.4-5         mstate_0.3.2       
+[76] modelr_0.1.9        crayon_1.5.2        car_3.1-0          
+[79] survMisc_0.5.6      utf8_1.2.2          tzdb_0.3.0         
+[82] rmarkdown_2.16      grid_4.2.1          readxl_1.4.1       
+[85] data.table_1.14.2   callr_3.7.2         git2r_0.30.1       
+[88] reprex_2.0.2        digest_0.6.29       xtable_1.8-4       
+[91] httpuv_1.6.6        numDeriv_2016.8-1.1 munsell_0.5.0      
+[94] bslib_0.4.0         quadprog_1.5-8     </code></pre>
 </div>
 </div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
-http://docs.mathjax.org/en/latest/configuration.html.  This will make
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
 the presentation more consistent at the cost of the webpage sometimes
 taking slightly longer to load. Note that this only works because the
 footer is added to webpages before the MathJax javascript. -->
@@ -883,7 +3786,7 @@ footer is added to webpages before the MathJax javascript. -->
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -901,7 +3804,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -910,6 +3813,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
@@ -922,7 +3828,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
